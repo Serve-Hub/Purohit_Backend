@@ -421,7 +421,7 @@ export const googleLogin = asyncHandler(async (req, res) => {
         new ApiResponse(
           200,
           userInfo,
-          "User logged in successfully with Google"
+          "User logged  successfully with Google"
         )
       );
   } catch (error) {
