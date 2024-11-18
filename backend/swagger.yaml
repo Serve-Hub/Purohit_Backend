@@ -1,0 +1,333 @@
+openapi: 3.0.0
+info:
+  title: Purohit API
+  description: API documentation for Purohit application.
+  version: 1.0.0
+  contact:
+    -name: Purohit Team
+    email: Purohit@example.com
+servers:
+  - url: http://localhost:3000
+    description: Development server
+tags:
+  - name: "Users"
+    description: "Operations related to user registration, login, and OTP management"
+paths:
+  /api/v1/users/register:
+    post:
+      tags:
+        - "Users"
+      summary: Register a new user
+      description: Registers a new user with first name, last name, email, password, and contact.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                firstName:
+                  type: string
+                  description: The user's first name
+                  example: John
+                lastName:
+                  type: string
+                  description: The user's last name
+                  example: Doe
+                email:
+                  type: string
+                  description: The user's email address (optional)
+                  example: johndoe@example.com
+                password:
+                  type: string
+                  description: The user's password (optional for Google login)
+                  example: password123
+                contact:
+                  type: string
+                  description: The user's phone number (optional)
+                  example: +1234567890
+      responses:
+        201:
+          description: User registered successfully
+        400:
+          description: Invalid input or missing required fields
+        500:
+          description: Internal server error
+
+  /api/v1/users/auth/google:
+    get:
+      tags:
+        - "Users"
+      summary: Initiate Google OAuth login
+      description: Redirects to Google OAuth for user authentication
+      responses:
+        302:
+          description: Redirect to Google OAuth
+
+  /api/v1/users/auth/google/callback:
+    get:
+      tags:
+        - "Users"
+      summary: Google OAuth callback
+      description: Callback route after Google OAuth authentication
+      responses:
+        200:
+          description: User authenticated via Google
+        401:
+          description: Unauthorized, Google authentication failed
+
+  /api/v1/users/login:
+    post:
+      tags:
+        - "Users"
+      summary: Login user with username/email and password
+      description: Logs in the user by providing the username/email and password. If credentials are valid, returns access and refresh tokens.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  description: The user's email address
+                  example: johndoe@example.com
+                password:
+                  type: string
+                  description: The user's password
+                  example: password123
+      responses:
+        200:
+          description: Login successful, returns access and refresh tokens
+        401:
+          description: Invalid credentials
+        500:
+          description: Internal server error
+
+  /api/v1/users/register/sendEmailOTP:
+    post:
+      tags:
+        - "Users"
+      summary: Send OTP to email for registration
+      description: Sends an OTP to the user's email for registration verification.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  description: The user's email address
+                  example: johndoe@example.com
+                token:
+                  type: string
+                  description: The token given during registration.
+      responses:
+        200:
+          description: OTP sent successfully
+        400:
+          description: Invalid email or server error
+
+  /api/v1/users/register/verifyOTP:
+    post:
+      tags:
+        - "Users"
+      summary: Verify OTP for registration
+      description: Verifies the OTP sent to the user's email for registration.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  description: The user's email address
+                  example: johndoe@example.com
+                otp:
+                  type: string
+                  description: The OTP sent to the user's email
+                  example: 123456
+      responses:
+        200:
+          description: OTP verified successfully
+        400:
+          description: Invalid OTP
+        500:
+          description: Internal server error
+
+  /api/v1/users/logout:
+    post:
+      tags:
+        - "Users"
+      summary: Logout user
+      description: Logs out the user and invalidates the session. Requires valid JWT token.
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Logout successful
+        401:
+          description: Unauthorized, invalid or missing token
+
+  /api/v1/users/refresh-token:
+    post:
+      tags:
+        - "Users"
+      summary: Refresh access token
+      description: Refreshes the user's access token using the refresh token.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                refreshToken:
+                  type: string
+                  description: The user's refresh token
+                  example: some-refresh-token-value
+      responses:
+        200:
+          description: New access token generated
+        401:
+          description: Invalid or expired refresh token
+        500:
+          description: Internal server error
+
+  /api/v1/users/register/verifyOTP/resendOTPCode:
+    post:
+      tags:
+        - "Users"
+      summary: Resend OTP code for email verification
+      description: Resends the OTP code for email verification during registration.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  description: The user's email address
+                  example: johndoe@example.com
+      responses:
+        200:
+          description: OTP resent successfully
+        400:
+          description: Invalid email or error in resending OTP
+
+  /api/v1/users/login/phone:
+    post:
+      tags:
+        - "Users"
+      summary: Login with phone number
+      description: Logs in the user using their phone number.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                contact:
+                  type: string
+                  description: The user's phone number
+                  example: +1234567890
+                otp:
+                  type: string
+                  description: The OTP sent to the user's phone number
+                  example: 123456
+      responses:
+        200:
+          description: Login successful, returns access and refresh tokens
+        401:
+          description: Invalid credentials or OTP
+
+  /api/v1/users/emailResetPassword:
+    post:
+      tags:
+        - "Users"
+      summary: Reset password via email
+      description: Resets the user's password via email and sends a reset link.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  description: The user's email address
+                  example: johndoe@example.com
+      responses:
+        200:
+          description: Password reset email sent successfully
+        400:
+          description: Invalid email or error in sending reset email
+
+  /api/v1/users/register/sendMobileOTP:
+    post:
+      tags:
+        - "Users"
+      summary: Send OTP to mobile for registration
+      description: Sends an OTP to the user's mobile phone for registration verification.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                contact:
+                  type: string
+                  description: The user's phone number
+                  example: +1234567890
+      responses:
+        200:
+          description: OTP sent successfully
+        400:
+          description: Invalid phone number or error in sending OTP
+
+  /api/v1/users/register/verifyMobileOTP:
+    post:
+      tags:
+        - "Users"
+      summary: Verify mobile OTP for registration
+      description: Verifies the OTP sent to the user's mobile phone for registration.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                contact:
+                  type: string
+                  description: The user's phone number
+                  example: +1234567890
+                otp:
+                  type: string
+                  description: The OTP sent to the user's phone
+                  example: 123456
+      responses:
+        200:
+          description: Mobile OTP verified successfully
+        400:
+          description: Invalid OTP
+        500:
+          description: Internal server error
+security:
+  - bearerAuth: []
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
