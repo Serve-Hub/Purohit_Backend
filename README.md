@@ -1,1 +1,1 @@
-#This is purohit backend
+# backend setup guide
