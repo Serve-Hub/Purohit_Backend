@@ -4,6 +4,7 @@ import cookieParser from "cookie-parser";
 import passport from "./middlewares/passport.js";
 import session from "express-session";
 import userRouter from "./routes/user.routes.js";
+import adminRouter from "./routes/admin.routes.js";
 import swaggerUi from "swagger-ui-express";
 import YAML from "yamljs"; // Import YAML parser
 import path from "path";
@@ -53,6 +54,8 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 app.use("/api/v1/users", userRouter);
+app.use("/api/v1/admin", adminRouter);
+
 app.use((req, res, next) => {
   res.status(404).json({ message: "Route not found" });
 });

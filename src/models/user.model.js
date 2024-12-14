@@ -51,7 +51,6 @@ const userSchema = new Schema(
       type: Boolean,
       default: false,
     },
-    googleId: { type: String, unique: true, sparse: true },
     // forgotPasswordToken: String,
     // forgotPasswordTokenExpiry: Date,
     // verifyToken: String,
