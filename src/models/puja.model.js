@@ -23,7 +23,7 @@ const pujaSchema = new Schema(
       type: String,
       required: true,
       trim: true,
-      enum: ["Astrology", "PUja", "Homam", "Vastu", "Others"],
+      enum: ["Astrology", "Puja", "Homam", "Vastu", "Others"],
     },
     duration: {
       type: Number,
