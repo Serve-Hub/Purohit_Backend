@@ -29,19 +29,19 @@ const generateAccessAndRefreshTokens = async (userId) => {
 };
 
 const registerUser = asyncHandler(async (req, res) => {
-  res.send("Register user route");
+  // res.send("Register user route");
   const { email, firstName, lastName, password, contact } = req.body;
   const trimmedEmail = email?.trim();
   const trimmedFirstName = firstName?.trim();
   const trimmedLastName = lastName?.trim();
-  const trimmedContact = contact?.trim();
+  // const trimmedContact = contact?.trim();
   // const trimmedAvatar = avatar?.trim();
   const hasEmptyField = [
     trimmedEmail,
     trimmedFirstName,
     trimmedLastName,
     password,
-    trimmedContact,
+    // trimmedContact,
     // trimmedAvatar,
   ].some((field) => field === "");
 
