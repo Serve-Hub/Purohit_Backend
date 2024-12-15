@@ -4,7 +4,7 @@ info:
   description: API documentation for Purohit application.
   version: 1.0.0
   contact:
-    -name: Purohit Team
+    name: Purohit Team
     email: Purohit@example.com
 servers:
   - url: http://localhost:3000
@@ -12,6 +12,8 @@ servers:
 tags:
   - name: "Users"
     description: "Operations related to user registration, login, and OTP management"
+  - name: "Admin"
+    description: "Operations related to admin user management and control"
 paths:
   /api/v1/users/register:
     post:
@@ -323,6 +325,150 @@ paths:
           description: Invalid OTP
         500:
           description: Internal server error
+
+  /api/v1/admin/addPuja:
+    post:
+      tags:
+        - "Admin"
+      summary: Add a new puja.
+      description: Adds a new puja to the system with details like name, description, price, and duration.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                pujaName:
+                  type: string
+                  description: Name of the puja
+                baseFare:
+                  type: number
+                  description: Base fare for the puja
+                category:
+                  type: string
+                  description: Category of the puja
+                duration:
+                  type: string
+                  description: Duration of the puja
+                description:
+                  type: string
+                  description: Detailed description of the puja
+                file:
+                  type: string
+                  format: binary
+                  description: Image file of the puja
+      responses:
+        "201":
+          description: Puja added successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+  /api/v1/admin/editPuja/{id}:
+    patch:
+      tags:
+        - "Admin"
+      summary: Edit an existing Puja.
+      description: Fetches the details of a user by their unique ID.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: The ID of the Puja to edit
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                pujaName:
+                  type: string
+                  description: Updated name of the puja
+                baseFare:
+                  type: number
+                  description: Updated base fare for the puja
+                category:
+                  type: string
+                  description: Updated category of the puja
+                duration:
+                  type: string
+                  description: Updated duration of the puja
+                description:
+                  type: string
+                  description: Updated detailed description of the puja
+                file:
+                  type: string
+                  format: binary
+                  description: New image file of the puja (optional)
+      responses:
+        "200":
+          description: Puja details updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "404":
+          description: Puja not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/v1/admin/deletePuja/{id}:
+    delete:
+      tags:
+        - "Admin"
+      summary: Delete a Puja by ID
+      description: Deletes a user from the system by their unique ID.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: The ID of the Puja to delete
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Puja deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "404":
+          description: Puja not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
 security:
   - bearerAuth: []
 components:
@@ -331,3 +477,50 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
+  schemas:
+    ApiResponse:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          description: HTTP status code of the response
+          example: 200
+        data:
+          type: object
+          description: The data payload of the response
+          example:
+            id: 123
+            name: "Sample Data"
+        message:
+          type: string
+          description: Response message
+          example: Success
+        success:
+          type: boolean
+          description: Indicates whether the request was successful
+          example: true
+    ApiError:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          description: HTTP status code of the error
+        message:
+          type: string
+          description: Error message providing more details
+          example: Something went wrong
+        success:
+          type: boolean
+          description: Indicates whether the request was successful
+          example: false
+        errors:
+          type: array
+          description: List of detailed error messages
+          items:
+            type: string
+        stack:
+          type: string
+          description: Stack trace of the error (optional)
+          example: |
+            Error: Something went wrong
+                at Function.<anonymous> (app.js:10:12)
