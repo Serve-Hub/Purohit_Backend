@@ -100,63 +100,63 @@ const editPuja = asyncHandler(async (req, res) => {
     );
 });
 
-// const getPujas = asyncHandler(async (req, res) => {
-//   // Pagination and filtering parameters
-//   const {
-//     page = 1,
-//     limit = 10,
-//     category,
-//     minPrice,
-//     maxPrice,
-//     minDuration,
-//     maxDuration,
-//   } = req.query;
+const getPujas = asyncHandler(async (req, res) => {
+  // Pagination and filtering parameters
+  const {
+    page = 1,
+    limit = 10,
+    category,
+    minPrice,
+    maxPrice,
+    minDuration,
+    maxDuration,
+  } = req.query;
 
-//   // Build the query object dynamically based on filters
-//   const filterQuery = {};
+  // Build the query object dynamically based on filters
+  const filterQuery = {};
 
-//   if (category) {
-//     filterQuery.category = category;
-//   }
+  if (category) {
+    filterQuery.category = category;
+  }
 
-//   if (minPrice || maxPrice) {
-//     filterQuery.baseFare = {};
-//     if (minPrice) filterQuery.baseFare.$gte = minPrice;
-//     if (maxPrice) filterQuery.baseFare.$lte = maxPrice;
-//   }
+  if (minPrice || maxPrice) {
+    filterQuery.baseFare = {};
+    if (minPrice) filterQuery.baseFare.$gte = minPrice;
+    if (maxPrice) filterQuery.baseFare.$lte = maxPrice;
+  }
 
-//   if (minDuration || maxDuration) {
-//     filterQuery.duration = {};
-//     if (minDuration) filterQuery.duration.$gte = minDuration;
-//     if (maxDuration) filterQuery.duration.$lte = maxDuration;
-//   }
+  if (minDuration || maxDuration) {
+    filterQuery.duration = {};
+    if (minDuration) filterQuery.duration.$gte = minDuration;
+    if (maxDuration) filterQuery.duration.$lte = maxDuration;
+  }
 
-//   // Calculate the number of documents to skip for pagination
-//   const skip = (page - 1) * limit;
+  // Calculate the number of documents to skip for pagination
+  const skip = (page - 1) * limit;
 
-//   // Fetch pujas with filters and pagination
-//   const pujas = await Puja.find(filterQuery)
-//     .skip(skip)
-//     .limit(Number(limit))
-//     .exec();
+  // Fetch pujas with filters and pagination
+  const pujas = await Puja.find(filterQuery)
+    .skip(skip)
+    .limit(Number(limit))
+    .exec();
 
-//   // Count total pujas after applying filters for pagination info
-//   const totalPujas = await Puja.countDocuments(filterQuery);
+  // Count total pujas after applying filters for pagination info
+  const totalPujas = await Puja.countDocuments(filterQuery);
 
-//   // Return paginated and filtered response
-//   return res.status(200).json(
-//     new ApiResponse(
-//       200,
-//       {
-//         pujas,
-//         totalPujas,
-//         totalPages: Math.ceil(totalPujas / limit),
-//         currentPage: page,
-//       },
-//       "Filtered Pujas"
-//     )
-//   );
-// });
+  // Return paginated and filtered response
+  return res.status(200).json(
+    new ApiResponse(
+      200,
+      {
+        pujas,
+        totalPujas,
+        totalPages: Math.ceil(totalPujas / limit),
+        currentPage: page,
+      },
+      "Filtered Pujas"
+    )
+  );
+});
 
 const deletePuja = asyncHandler(async (req, res) => {
   const pujaId = req.params.id;
@@ -191,4 +191,4 @@ const deletePuja = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, deletedPuja, "Puja deleted successfully"));
 });
 
-export { addPuja, editPuja, deletePuja };
+export { addPuja, editPuja, getPujas, deletePuja };
