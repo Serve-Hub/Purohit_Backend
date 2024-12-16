@@ -170,6 +170,14 @@ paths:
       description: Logs out the user and invalidates the session. Requires valid JWT token.
       security:
         - bearerAuth: []
+      parameter:
+        - name: Authorization
+          in: header
+          description: Bearer token for authentication
+          required: true
+          schema:
+            type: string
+            example: "Bearer <your_token_here>"
       responses:
         200:
           description: Logout successful
@@ -184,6 +192,14 @@ paths:
       description: Fetches the details of the currently authenticated user.
       security:
         - bearerAuth: []
+      parameter:
+        - name: Authorization
+          in: header
+          description: Bearer token for authentication
+          required: true
+          schema:
+            type: string
+            example: "Bearer <your_token_here>"
       responses:
         200:
           description: Successfully fetched the current user
@@ -382,6 +398,14 @@ paths:
       description: Adds a new puja to the system with details like name, description, price, and duration.
       security:
         - bearerAuth: []
+      parameters:
+        - name: Authorization
+          in: header
+          description: Bearer token for authentication
+          required: true
+          schema:
+            type: string
+            example: "Bearer <your_token_here>"
       requestBody:
         required: true
         content:
@@ -429,6 +453,13 @@ paths:
       summary: Edit an existing Puja.
       description: Fetches the details of a user by their unique ID.
       parameters:
+        - name: Authorization
+          in: header
+          description: Bearer token for authentication
+          required: true
+          schema:
+            type: string
+            example: "Bearer <your_token_here>"
         - in: path
           name: id
           required: true
@@ -492,6 +523,13 @@ paths:
       security:
         - bearerAuth: []
       parameters:
+        - name: Authorization
+          in: header
+          description: Bearer token for authentication
+          required: true
+          schema:
+            type: string
+            example: "Bearer <your_token_here>"
         - name: page
           in: query
           description: The page number for pagination (default is 1)
@@ -616,6 +654,7 @@ paths:
                   message:
                     type: string
                     example: "Internal server error"
+
   /api/v1/admin/deletePuja/{id}:
     delete:
       tags:
@@ -623,6 +662,13 @@ paths:
       summary: Delete a Puja by ID
       description: Deletes a user from the system by their unique ID.
       parameters:
+        - name: Authorization
+          in: header
+          description: Bearer token for authentication
+          required: true
+          schema:
+            type: string
+            example: "Bearer <your_token_here>"
         - in: path
           name: id
           required: true
