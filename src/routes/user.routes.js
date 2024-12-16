@@ -8,6 +8,7 @@ import registerUser, {
   emailRegister,
   googleLogin,
   loginPhoneUser,
+  getCurrentUser,
 } from "../controllers/user.controller.js";
 import {
   verifyOTP,
@@ -54,5 +55,6 @@ router.route("/register/sendMobileOTP").post(mobileRegister);
 router.route("/register/verifyMobileOTP").post(verifyMobileOTP);
 
 //protected route
+router.route("/getCurrentUser").get(verifyJWT, getCurrentUser);
 
 export default router;

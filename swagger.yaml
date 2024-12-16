@@ -176,6 +176,54 @@ paths:
         401:
           description: Unauthorized, invalid or missing token
 
+  /api/v1/users/getCurrentUser:
+    get:
+      tags:
+        - "Users"
+      summary: Get the current logged-in user
+      description: Fetches the details of the currently authenticated user.
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Successfully fetched the current user
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: object
+                    properties:
+                      userId:
+                        type: string
+                        example: "60d23d8f1d4b3e256b6432d3"
+                      username:
+                        type: string
+                        example: "john_doe"
+                      email:
+                        type: string
+                        example: "john_doe@example.com"
+                  message:
+                    type: string
+                    example: "Current user fetched successfully"
+        401:
+          description: User not authenticated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: error
+                  message:
+                    type: string
+                    example: "User not authenticated"
+
   /api/v1/users/refresh-token:
     post:
       tags:
@@ -434,6 +482,138 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ApiError"
+
+  /api/v1/pujas:
+    get:
+      tags:
+        - "Admin"
+      summary: Get a list of pujas with filtering and pagination
+      description: Fetches a list of pujas with optional filtering based on category, price range, and duration. Pagination is also supported.
+      parameters:
+        - name: page
+          in: query
+          description: The page number for pagination (default is 1)
+          required: false
+          schema:
+            type: integer
+            example: 1
+        - name: limit
+          in: query
+          description: The number of results per page (default is 10)
+          required: false
+          schema:
+            type: integer
+            example: 10
+        - name: category
+          in: query
+          description: The category of the puja to filter by
+          required: false
+          schema:
+            type: string
+            example: "Hindu"
+        - name: minPrice
+          in: query
+          description: The minimum price of the puja to filter by
+          required: false
+          schema:
+            type: number
+            example: 100
+        - name: maxPrice
+          in: query
+          description: The maximum price of the puja to filter by
+          required: false
+          schema:
+            type: number
+            example: 1000
+        - name: minDuration
+          in: query
+          description: The minimum duration of the puja to filter by
+          required: false
+          schema:
+            type: string
+            example: "1 hour"
+        - name: maxDuration
+          in: query
+          description: The maximum duration of the puja to filter by
+          required: false
+          schema:
+            type: string
+            example: "2 hours"
+      responses:
+        200:
+          description: Successfully fetched the filtered and paginated list of pujas
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: object
+                    properties:
+                      pujas:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            pujaId:
+                              type: string
+                              example: "60d23d8f1d4b3e256b6432d3"
+                            pujaName:
+                              type: string
+                              example: "Lakshmi Puja"
+                            category:
+                              type: string
+                              example: "Hindu"
+                            baseFare:
+                              type: number
+                              example: 500
+                            duration:
+                              type: string
+                              example: "1.5 hours"
+                            description:
+                              type: string
+                              example: "A ritual for the worship of Goddess Lakshmi."
+                      totalPujas:
+                        type: integer
+                        example: 50
+                      totalPages:
+                        type: integer
+                        example: 5
+                      currentPage:
+                        type: integer
+                        example: 1
+                  message:
+                    type: string
+                    example: "Filtered Pujas"
+        400:
+          description: Bad request, invalid query parameters
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: error
+                  message:
+                    type: string
+                    example: "Invalid query parameters"
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: error
+                  message:
+                    type: string
+                    example: "Internal server error"
   /api/v1/admin/deletePuja/{id}:
     delete:
       tags:

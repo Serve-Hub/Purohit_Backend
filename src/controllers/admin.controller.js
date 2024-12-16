@@ -103,13 +103,13 @@ const editPuja = asyncHandler(async (req, res) => {
 const getPujas = asyncHandler(async (req, res) => {
   // Pagination and filtering parameters
   const {
-    page = 1,
-    limit = 10,
-    category,
-    minPrice,
-    maxPrice,
-    minDuration,
-    maxDuration,
+    page = req.query.page || 1,
+    limit = req.query.limit || 10,
+    category = req.query.category || "",
+    minPrice = req.query.minPrice || 0,
+    maxPrice = req.query.maxPrice || Infinity,
+    minDuration = req.query.minDuration || 0,
+    maxDuration = req.query.maxDuration || Infinity,
   } = req.query;
 
   // Build the query object dynamically based on filters

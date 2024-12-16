@@ -361,9 +361,14 @@ export const refreshAccessToken = asyncHandler(async (req, res) => {
 });
 
 export const getCurrentUser = asyncHandler(async (req, res) => {
+  if (!req.user) {
+    return res
+      .status(401)
+      .json(new ApiResponse(401, null, "User not authenticated"));
+  }
   return res
     .status(200)
-    .json(200, req.user, "current user fetched successfully");
+    .json(new ApiResponse(200, req.user, "Current user fetched successfully"));
 });
 
 export const updateAccountDetails = asyncHandler(async (req, res) => {
