@@ -17,12 +17,14 @@ const verifyToken = (token) => {
 const verifyJWT = asyncHandler(async (req, res, next) => {
   try {
     const token = extractToken(req);
+    console.log(token);
 
     if (!token) {
       throw new ApiError(401, "Unauthorized request");
     }
 
     const decodedToken = verifyToken(token);
+    console.log(decodedToken);
     if (!decodedToken?._id) {
       throw new ApiError(401, "Invalid Access Token");
     }
@@ -30,6 +32,7 @@ const verifyJWT = asyncHandler(async (req, res, next) => {
     const user = await User.findById(decodedToken._id).select(
       "-password -refreshToken"
     );
+    console.log(user);
     if (!user) {
       throw new ApiError(401, "User not found for the given token");
     }

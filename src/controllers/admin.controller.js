@@ -191,4 +191,5 @@ const deletePuja = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, deletedPuja, "Puja deleted successfully"));
 });
 
+
 export { addPuja, editPuja, getPujas, deletePuja };
