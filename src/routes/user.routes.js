@@ -53,4 +53,6 @@ router.route("/register/sendMobileOTP").post(mobileRegister);
 
 router.route("/register/verifyMobileOTP").post(verifyMobileOTP);
 
+//protected route
+
 export default router;

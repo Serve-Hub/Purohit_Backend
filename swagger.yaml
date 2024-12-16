@@ -356,7 +356,7 @@ paths:
                 description:
                   type: string
                   description: Detailed description of the puja
-                file:
+                pujaImage:
                   type: string
                   format: binary
                   description: Image file of the puja
@@ -411,7 +411,7 @@ paths:
                 description:
                   type: string
                   description: Updated detailed description of the puja
-                file:
+                pujaImage:
                   type: string
                   format: binary
                   description: New image file of the puja (optional)
