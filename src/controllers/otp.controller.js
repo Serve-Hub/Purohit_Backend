@@ -22,9 +22,9 @@ export const verifyOTP = asyncHandler(async (req, res) => {
     const userOTP = await OTP.findOne({
       email: decoded.email || decoded.userData.email,
     });
-    console.log("opt=", otp, "userOTP= ", userOTP.otp);
+    // console.log("opt=", otp, "userOTP= ", userOTP.otp);
     const match = await bcrypt.compare(otp, userOTP.otp);
-    console.log(match);
+    // console.log(match);
     if (!match) {
       throw new ApiError(400, "Invalid OTP.");
     }
@@ -32,8 +32,15 @@ export const verifyOTP = asyncHandler(async (req, res) => {
     const existingUser = await User.findOne({
       email: decoded.email || decoded.userData.email,
     });
-    if (existingUser) {
+    if (existingUser && !existingUser.googleId) {
       throw new ApiError(409, "User with this email already exists.");
+    }
+
+    if (existingUser && existingUser.googleId && !existingUser.password) {
+      existingUser.password = decoded.password || decoded.userData.password;
+      await existingUser.save();
+      await OTP.deleteMany({ email: decoded.email || decoded.userData.email });
+      return res.status(200).json({ message: "User Created." });
     }
 
     const user = new User({

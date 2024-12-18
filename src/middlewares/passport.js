@@ -8,13 +8,13 @@ passport.use(
     {
       clientID: process.env.OAUTH_CLIENT_ID,
       clientSecret: process.env.OAUTH_CLIENT_SECRET,
-      callbackURL:
-        "http://purohit-backend.onrender.com/api/v1/users/auth/google/callback",
+      callbackURL: "http://localhost:3000/api/v1/users/auth/google/callback",
       passReqToCallback: true,
     },
     async (req, accessToken, refreshToken, profile, done) => {
       try {
-        let user = await User.findOne({ email: profile.email });
+        let user = await User.findOne({ email: profile.emails[0].value });
+        // console.log(user);
         if (user) {
           if (user.googleId && user.googleId === profile.id) {
             user.email =
@@ -37,6 +37,7 @@ passport.use(
         } else {
           // If user does not exist, create a new user
           user = await User.create({
+            googleId: profile.id,
             email:
               profile.emails && profile.emails.length > 0
                 ? profile.emails[0].value
@@ -50,7 +51,6 @@ passport.use(
                 : null,
           });
         }
-
         return done(null, user);
       } catch (err) {
         return done(err);

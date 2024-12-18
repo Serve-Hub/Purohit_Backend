@@ -40,9 +40,8 @@ const userSchema = new Schema(
       type: String,
       required: false,
       sparse: true,
-      unique: true,
     },
-    googleId: { type: String, unique: true, sparse: true },
+    googleId: { type: String, sparse: true },
     isVerified: {
       type: Boolean,
       default: false,

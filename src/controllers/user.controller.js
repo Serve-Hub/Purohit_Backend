@@ -48,15 +48,20 @@ const registerUser = asyncHandler(async (req, res) => {
   if (hasEmptyField) {
     throw new ApiError(400, "All fields are required and cannot be empty.");
   }
-  console.log(trimmedEmail);
+  // console.log(trimmedEmail);
   const existingUser = await User.findOne({ email: trimmedEmail });
 
   //if email already exists throw error
-  if (existingUser) {
+  if (existingUser && !existingUser.googleId) {
     throw new ApiError(409, "User with email already exists");
   }
 
+  if (existingUser && existingUser.googleId && existingUser.password) {
+    throw new ApiError(409, "User already exists");
+  }
+
   const hashedPassword = await bcrypt.hash(password, 10);
+
   // const avatarLocalPath = req.file?.path;
 
   // if (!avatarLocalPath) {
@@ -89,8 +94,8 @@ export const emailRegister = asyncHandler(async (req, res) => {
   const existingUser = await User.findOne({ email: trimmedEmail });
 
   //if email already exists throw error
-  if (existingUser) {
-    throw new ApiError(409, "User with contact already exists");
+  if (existingUser && !existingUser.googleId && !existingUser.password) {
+    throw new ApiError(409, "User  already exists");
   }
 
   await sendEmail({ email: trimmedEmail });
