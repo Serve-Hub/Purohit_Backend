@@ -431,7 +431,6 @@ export const googleLogin = asyncHandler(async (req, res) => {
         )
       );
   } catch (error) {
-    console.error("Error during Google login:", error);
-    throw new ApiError(500, "Internal server error during login");
+    throw new ApiError(500, "Google login failed");
   }
 });

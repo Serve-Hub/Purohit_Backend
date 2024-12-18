@@ -14,9 +14,8 @@ passport.use(
     },
     async (req, accessToken, refreshToken, profile, done) => {
       try {
-        let user = await User.findOne({ googleId: profile.id });
-        if (user) {
-          // User already exists, you may want to update their profile if needed
+        let user = await User.findOne({ email: profile.email });
+        if (user.googleId) {
           user.email =
             profile.emails && profile.emails.length > 0
               ? profile.emails[0].value
@@ -27,7 +26,6 @@ passport.use(
             profile.photos && profile.photos.length > 0
               ? profile.photos[0].value
               : user.avatar;
-
           // Save updated user information if changes were made
           await user.save();
         } else {
