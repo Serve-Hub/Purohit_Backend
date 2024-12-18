@@ -50,9 +50,9 @@ router.route("/login/phone").post(loginPhoneUser);
 
 router.route("/emailResetPassword").post(emailResetPassword);
 
-router.route("/register/sendMobileOTP").post(mobileRegister);
+// router.route("/register/sendMobileOTP").post(mobileRegister);
 
-router.route("/register/verifyMobileOTP").post(verifyMobileOTP);
+// router.route("/register/verifyMobileOTP").post(verifyMobileOTP);
 
 //protected route
 router.route("/getCurrentUser").get(verifyJWT, getCurrentUser);

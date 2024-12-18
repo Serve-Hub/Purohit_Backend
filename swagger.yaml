@@ -5,7 +5,7 @@ info:
   version: 1.0.0
   contact:
     name: Purohit Team
-    email: Purohit@example.com
+    email: Purohit@gmail.com
 servers:
   - url: http://localhost:3000
     description: Development server
@@ -288,32 +288,32 @@ paths:
         400:
           description: Invalid email or error in resending OTP
 
-  /api/v1/users/login/phone:
-    post:
-      tags:
-        - "Users"
-      summary: Login with phone number
-      description: Logs in the user using their phone number.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                contact:
-                  type: string
-                  description: The user's phone number
-                  example: +1234567890
-                otp:
-                  type: string
-                  description: The OTP sent to the user's phone number
-                  example: 123456
-      responses:
-        200:
-          description: Login successful, returns access and refresh tokens
-        401:
-          description: Invalid credentials or OTP
+  # /api/v1/users/login/phone:
+  #   post:
+  #     tags:
+  #       - "Users"
+  #     summary: Login with phone number
+  #     description: Logs in the user using their phone number.
+  #     requestBody:
+  #       required: true
+  #       content:
+  #         application/json:
+  #           schema:
+  #             type: object
+  #             properties:
+  #               contact:
+  #                 type: string
+  #                 description: The user's phone number
+  #                 example: +1234567890
+  #               otp:
+  #                 type: string
+  #                 description: The OTP sent to the user's phone number
+  #                 example: 123456
+  #     responses:
+  #       200:
+  #         description: Login successful, returns access and refresh tokens
+  #       401:
+  #         description: Invalid credentials or OTP
 
   /api/v1/users/emailResetPassword:
     post:
@@ -338,57 +338,57 @@ paths:
         400:
           description: Invalid email or error in sending reset email
 
-  /api/v1/users/register/sendMobileOTP:
-    post:
-      tags:
-        - "Users"
-      summary: Send OTP to mobile for registration
-      description: Sends an OTP to the user's mobile phone for registration verification.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                contact:
-                  type: string
-                  description: The user's phone number
-                  example: +1234567890
-      responses:
-        200:
-          description: OTP sent successfully
-        400:
-          description: Invalid phone number or error in sending OTP
+  # /api/v1/users/register/sendMobileOTP:
+  #   post:
+  #     tags:
+  #       - "Users"
+  #     summary: Send OTP to mobile for registration
+  #     description: Sends an OTP to the user's mobile phone for registration verification.
+  #     requestBody:
+  #       required: true
+  #       content:
+  #         application/json:
+  #           schema:
+  #             type: object
+  #             properties:
+  #               contact:
+  #                 type: string
+  #                 description: The user's phone number
+  #                 example: +1234567890
+  #     responses:
+  #       200:
+  #         description: OTP sent successfully
+  #       400:
+  #         description: Invalid phone number or error in sending OTP
 
-  /api/v1/users/register/verifyMobileOTP:
-    post:
-      tags:
-        - "Users"
-      summary: Verify mobile OTP for registration
-      description: Verifies the OTP sent to the user's mobile phone for registration.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                contact:
-                  type: string
-                  description: The user's phone number
-                  example: +1234567890
-                otp:
-                  type: string
-                  description: The OTP sent to the user's phone
-                  example: 123456
-      responses:
-        200:
-          description: Mobile OTP verified successfully
-        400:
-          description: Invalid OTP
-        500:
-          description: Internal server error
+  # /api/v1/users/register/verifyMobileOTP:
+  #   post:
+  #     tags:
+  #       - "Users"
+  #     summary: Verify mobile OTP for registration
+  #     description: Verifies the OTP sent to the user's mobile phone for registration.
+  #     requestBody:
+  #       required: true
+  #       content:
+  #         application/json:
+  #           schema:
+  #             type: object
+  #             properties:
+  #               contact:
+  #                 type: string
+  #                 description: The user's phone number
+  #                 example: +1234567890
+  #               otp:
+  #                 type: string
+  #                 description: The OTP sent to the user's phone
+  #                 example: 123456
+  #     responses:
+  #       200:
+  #         description: Mobile OTP verified successfully
+  #       400:
+  #         description: Invalid OTP
+  #       500:
+  #         description: Internal server error
 
   /api/v1/admin/addPuja:
     post:
