@@ -94,15 +94,14 @@ const fillKYP = asyncHandler(async (req, res) => {
 
 const viewAllKYP = asyncHandler(async (req, res) => {
   // Extract `page` and `limit` from query parameters, with default values
-  const page = parseInt(req.query.page, 10) || 1; // Default to page 1
-  const limit = parseInt(req.query.limit, 10) || 10; // Default to 10 items per page
+  const page = Math.max(1, parseInt(req.query.page, 10) || 1); // Ensure page is at least 1
+  const limit = Math.max(1, parseInt(req.query.limit, 10) || 10); // Ensure limit is at least 1
   const skip = (page - 1) * limit;
 
-  // Fetch paginated data
-  const allKYPs = await KYP.find().skip(skip).limit(limit);
-
-  // Get the total count of documents
-  const totalCount = await KYP.countDocuments();
+  const [allKYPs, totalCount] = await Promise.all([
+    KYP.find().skip(skip).limit(limit),
+    KYP.countDocuments(),
+  ]);
 
   // Calculate total pages
   const totalPages = Math.ceil(totalCount / limit);
@@ -122,8 +121,8 @@ const viewAllKYP = asyncHandler(async (req, res) => {
 });
 
 const viewKYP = asyncHandler(async (req, res) => {
+  console.log("inside viewKYP");
   const kypID = req.params.id;
-  console.log(kypID);
   const validID = mongoose.isValidObjectId(kypID);
   if (!validID) {
     throw new ApiError(400, "Invalid KYP ID");
