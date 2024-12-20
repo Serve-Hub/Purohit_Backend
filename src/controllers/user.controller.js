@@ -30,7 +30,7 @@ const generateAccessAndRefreshTokens = async (userId) => {
 
 const registerUser = asyncHandler(async (req, res) => {
   // res.send("Register user route");
-  const { email, firstName, lastName, password, contact } = req.body;
+  const { email, firstName, lastName, password } = req.body;
   const trimmedEmail = email?.trim();
   const trimmedFirstName = firstName?.trim();
   const trimmedLastName = lastName?.trim();
@@ -371,6 +371,7 @@ export const getCurrentUser = asyncHandler(async (req, res) => {
       .status(401)
       .json(new ApiResponse(401, null, "User not authenticated"));
   }
+  
   return res
     .status(200)
     .json(new ApiResponse(200, req.user, "Current user fetched successfully"));

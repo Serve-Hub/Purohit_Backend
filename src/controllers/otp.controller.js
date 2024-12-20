@@ -54,7 +54,7 @@ export const verifyOTP = asyncHandler(async (req, res) => {
       isVerified: true, // Mark the user as verified
     });
 
-    // const incomingAvatar = await uploadOnCloudinary(user.avatar);
+    // const incomingAvatar = await uploadOnCloudinary(useruser.avatar);
     // if (!incomingAvatar) {
     //   throw new ApiError(400, "Avatar upload failed.");
     // }

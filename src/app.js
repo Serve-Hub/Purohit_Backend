@@ -5,6 +5,7 @@ import passport from "./middlewares/passport.js";
 import session from "express-session";
 import userRouter from "./routes/user.routes.js";
 import adminRouter from "./routes/admin.routes.js";
+import kypRouter from "./routes/kyp.routes.js";
 import swaggerUi from "swagger-ui-express";
 import YAML from "yamljs"; // Import YAML parser
 import path from "path";
@@ -28,10 +29,11 @@ app.get("/", (req, res) => {
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // To make app understand json data
-app.use(express.json({ limit: "10kb" }));
+app.use(express.json({ limit: "1000kb" }));
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true, limit: "10kb" }));
 app.use(express.static("public"));
+
 
 app.use(
   session({
@@ -55,6 +57,7 @@ app.use(cors(corsOptions));
 
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/admin", adminRouter);
+app.use("/api/v1/kyp", kypRouter);
 
 // app.use((req, res, next) => {
 //   res.status(404).json({ message: "Route not found" });

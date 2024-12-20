@@ -170,14 +170,6 @@ paths:
       description: Logs out the user and invalidates the session. Requires valid JWT token.
       security:
         - bearerAuth: []
-      parameter:
-        - name: Authorization
-          in: header
-          description: Bearer token for authentication
-          required: true
-          schema:
-            type: string
-            example: "Bearer <your_token_here>"
       responses:
         200:
           description: Logout successful
@@ -192,14 +184,6 @@ paths:
       description: Fetches the details of the currently authenticated user.
       security:
         - bearerAuth: []
-      parameter:
-        - name: Authorization
-          in: header
-          description: Bearer token for authentication
-          required: true
-          schema:
-            type: string
-            example: "Bearer <your_token_here>"
       responses:
         200:
           description: Successfully fetched the current user
@@ -315,28 +299,28 @@ paths:
   #       401:
   #         description: Invalid credentials or OTP
 
-  /api/v1/users/emailResetPassword:
-    post:
-      tags:
-        - "Users"
-      summary: Reset password via email
-      description: Resets the user's password via email and sends a reset link.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                email:
-                  type: string
-                  description: The user's email address
-                  example: johndoe@example.com
-      responses:
-        200:
-          description: Password reset email sent successfully
-        400:
-          description: Invalid email or error in sending reset email
+  # /api/v1/users/emailResetPassword:
+  #   post:
+  #     tags:
+  #       - "Users"
+  #     summary: Reset password via email
+  #     description: Resets the user's password via email and sends a reset link.
+  #     requestBody:
+  #       required: true
+  #       content:
+  #         application/json:
+  #           schema:
+  #             type: object
+  #             properties:
+  #               email:
+  #                 type: string
+  #                 description: The user's email address
+  #                 example: johndoe@example.com
+  #     responses:
+  #       200:
+  #         description: Password reset email sent successfully
+  #       400:
+  #         description: Invalid email or error in sending reset email
 
   # /api/v1/users/register/sendMobileOTP:
   #   post:
@@ -398,14 +382,6 @@ paths:
       description: Adds a new puja to the system with details like name, description, price, and duration.
       security:
         - bearerAuth: []
-      parameters:
-        - name: Authorization
-          in: header
-          description: Bearer token for authentication
-          required: true
-          schema:
-            type: string
-            example: "Bearer <your_token_here>"
       requestBody:
         required: true
         content:
@@ -453,13 +429,6 @@ paths:
       summary: Edit an existing Puja.
       description: Fetches the details of a user by their unique ID.
       parameters:
-        - name: Authorization
-          in: header
-          description: Bearer token for authentication
-          required: true
-          schema:
-            type: string
-            example: "Bearer <your_token_here>"
         - in: path
           name: id
           required: true
@@ -523,13 +492,6 @@ paths:
       security:
         - bearerAuth: []
       parameters:
-        - name: Authorization
-          in: header
-          description: Bearer token for authentication
-          required: true
-          schema:
-            type: string
-            example: "Bearer <your_token_here>"
         - name: page
           in: query
           description: The page number for pagination (default is 1)
@@ -662,13 +624,6 @@ paths:
       summary: Delete a Puja by ID
       description: Deletes a user from the system by their unique ID.
       parameters:
-        - name: Authorization
-          in: header
-          description: Bearer token for authentication
-          required: true
-          schema:
-            type: string
-            example: "Bearer <your_token_here>"
         - in: path
           name: id
           required: true
@@ -696,6 +651,165 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ApiError"
+
+  /api/v1/kyp/fillKYP:
+    post:
+      summary: Fill KYP form for Pandit registration
+      tags:
+        - KYP
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                phoneNumber:
+                  type: string
+                  description: Pandit's phone number
+                day:
+                  type: integer
+                  description: Day of birth
+                month:
+                  type: integer
+                  description: Month of birth
+                year:
+                  type: integer
+                  description: Year of birth
+                province:
+                  type: string
+                  description: Temporary address province
+                district:
+                  type: string
+                  description: Temporary address district
+                municipality:
+                  type: string
+                  description: Temporary address municipality
+                tolAddress:
+                  type: string
+                  description: Temporary address tol
+                pmProvince:
+                  type: string
+                  description: Permanent address province
+                pmDistrict:
+                  type: string
+                  description: Permanent address district
+                pmMun:
+                  type: string
+                  description: Permanent address municipality
+                pmToladdress:
+                  type: string
+                  description: Permanent address tol
+                qualification:
+                  type: string
+                  description: Qualification details
+                experience:
+                  type: string
+                  description: Experience details
+                institution:
+                  type: string
+                  description: Institution details
+                qcertificate:
+                  type: string
+                  format: binary
+                  description: Qualification certificate document
+                citizenshipFrontPhoto:
+                  type: string
+                  format: binary
+                  description: Front photo of citizenship document
+                citizenshipBackPhoto:
+                  type: string
+                  format: binary
+                  description: Back photo of citizenship document
+      responses:
+        200:
+          description: KYP form successfully filled
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+      security:
+        - bearerAuth: []
+
+  /api/v1/kyp/viewAllKYP:
+    post:
+      summary: View all KYPs with pagination
+      tags:
+        - KYP
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: Page number for pagination
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: Number of items per page
+      responses:
+        200:
+          description: List of all KYPs
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+      security:
+        - bearerAuth: []
+
+  /api/v1/kyp/viewKYP/{id}:
+    post:
+      summary: View a specific KYP by ID
+      tags:
+        - KYP
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: KYP ID
+      responses:
+        200:
+          description: Details of the specified KYP
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+      security:
+        - bearerAuth: []
+
+  /api/v1/kyp/updateKYPStatus/:id:
+    put:
+      summary: Update the status of a KYP
+      tags:
+        - KYP
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: KYP ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  description: New status of the KYP
+      responses:
+        200:
+          description: Status updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+      security:
+        - bearerAuth: []
 
 security:
   - bearerAuth: []
