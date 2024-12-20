@@ -5,9 +5,11 @@ import uploadOnCloudinary from "../utils/cloudinary.js";
 import ApiResponse from "../utils/ApiResponse.js";
 import mongoose from "mongoose";
 import cloudinary from "cloudinary";
+import { deleteFromCloudinary } from "../utils/cloudinary.js";
 
 const addPuja = asyncHandler(async (req, res) => {
   const { pujaName, baseFare, category, duration, description } = req.body;
+  const adminID = req?.user._id;
   if (
     [pujaName, baseFare, category, duration, description].some(
       (field) => field?.trim() === ""
@@ -21,6 +23,7 @@ const addPuja = asyncHandler(async (req, res) => {
   }
   const pujaImage = await uploadOnCloudinary(pujaImageLocalPath);
   const puja = await Puja.create({
+    adminID,
     pujaName,
     pujaImage: pujaImage.url,
     baseFare,
@@ -64,10 +67,7 @@ const editPuja = asyncHandler(async (req, res) => {
     const publicId = oldImageURL?.split("/").pop().split(".")[0];
 
     if (publicId) {
-      const deleteResult = await cloudinary.uploader.destroy(publicId);
-      if (deleteResult.result !== "ok") {
-        throw new ApiError(400, "Error deleting old image from Cloudinary");
-      }
+      await deleteFromCloudinary(publicId); // Using the delete function
     }
 
     const newImagePath = req.file.path;

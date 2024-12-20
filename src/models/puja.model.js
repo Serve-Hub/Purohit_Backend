@@ -2,6 +2,11 @@ import { Schema, model } from "mongoose";
 
 const pujaSchema = new Schema(
   {
+    adminID: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
     pujaName: {
       type: String,
       required: true,

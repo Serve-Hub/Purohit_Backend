@@ -25,7 +25,7 @@ const fillKYP = asyncHandler(async (req, res) => {
     institution,
   } = req.body;
 
-  const panditID = req.user._id;
+  const panditID = req?.user._id;
   const user = await User.findById(panditID);
 
   if (!user) {

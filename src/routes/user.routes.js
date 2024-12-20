@@ -9,6 +9,8 @@ import registerUser, {
   googleLogin,
   loginPhoneUser,
   getCurrentUser,
+  addProfileImage,
+  updateProfileImage,
 } from "../controllers/user.controller.js";
 import {
   verifyOTP,
@@ -18,6 +20,7 @@ import {
 } from "../controllers/otp.controller.js";
 import passport from "passport";
 import verifyJWT from "../middlewares/auth.middleware.js";
+import { upload } from "../middlewares/multer.middleware.js";
 
 const router = Router();
 
@@ -56,5 +59,12 @@ router.route("/emailResetPassword").post(emailResetPassword);
 
 //protected route
 router.route("/getCurrentUser").get(verifyJWT, getCurrentUser);
+router
+  .route("/addProfilePicture")
+  .post(verifyJWT, upload.single("avatar"), addProfileImage);
+
+router
+  .route("/updateProfileImage")
+  .patch(verifyJWT, upload.single("avatar"), updateProfileImage);
 
 export default router;

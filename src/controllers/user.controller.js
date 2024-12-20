@@ -9,6 +9,8 @@ import { verifyHashedData, hashData } from "../utils/hashData.js";
 import bcrypt from "bcrypt";
 import OTP from "../models/userOTP.model.js";
 import sendMessage from "../utils/messageSender.js";
+import uploadOnCloudinary from "../utils/cloudinary.js";
+import { deleteFromCloudinary } from "../utils/cloudinary.js";
 
 const generateAccessAndRefreshTokens = async (userId) => {
   try {
@@ -371,7 +373,7 @@ export const getCurrentUser = asyncHandler(async (req, res) => {
       .status(401)
       .json(new ApiResponse(401, null, "User not authenticated"));
   }
-  
+
   return res
     .status(200)
     .json(new ApiResponse(200, req.user, "Current user fetched successfully"));
@@ -399,6 +401,72 @@ export const updateAccountDetails = asyncHandler(async (req, res) => {
   return res
     .status(200)
     .json(new ApiResponse(200, user, "Account details updated successfully."));
+});
+
+export const addProfileImage = asyncHandler(async (req, res) => {
+  if (!req.file) {
+    throw new ApiError(400, "Avatar file is required.");
+  }
+  const avatarLocalPath = req.file?.path;
+
+  if (!avatarLocalPath) {
+    throw new ApiError(400, "Avatar file is required.");
+  }
+  const avatarImage = await uploadOnCloudinary(avatarLocalPath);
+
+  const user = await User.findByIdAndUpdate(
+    req.user?._id,
+    {
+      $set: {
+        avatar: avatarImage.url,
+      },
+    },
+    { new: true }
+  ).select("-password");
+  if (!user) {
+    throw new ApiError(404, "User not found.");
+  }
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, "Profile image added successfully."));
+});
+
+export const updateProfileImage = asyncHandler(async (req, res) => {
+  if (!req.file) {
+    throw new ApiError(400, "Avatar file is required.");
+  }
+  const avatarLocalPath = req.file?.path;
+
+  if (!avatarLocalPath) {
+    throw new ApiError(400, "Avatar file is required.");
+  }
+  const user = await User.findById(req.user?._id).select("avatar");
+  if (!user) {
+    throw new ApiError(404, "User not found.");
+  }
+
+  if (user.avatar) {
+    // Extract the public ID of the current image
+    const publicId = user.avatar.split("/").pop().split(".")[0];
+    await deleteFromCloudinary(publicId);
+  }
+
+  const avatarImage = await uploadOnCloudinary(avatarLocalPath);
+
+  const updatedUser = await User.findByIdAndUpdate(
+    req.user?._id,
+    {
+      $set: {
+        avatar: avatarImage.url,
+      },
+    },
+    { new: true }
+  ).select("-password");
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, {}, "Profile image updated successfully."));
 });
 
 export const googleLogin = asyncHandler(async (req, res) => {
