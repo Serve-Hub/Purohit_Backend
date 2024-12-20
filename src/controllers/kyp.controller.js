@@ -89,7 +89,9 @@ const fillKYP = asyncHandler(async (req, res) => {
 
   await kyp.save();
 
-  res.status(200).json(new ApiResponse("KYP filled successfully", kyp));
+  res
+    .status(200)
+    .json(new ApiResponse("KYP filled successfully", { kyp, user }));
 });
 
 const viewAllKYP = asyncHandler(async (req, res) => {
