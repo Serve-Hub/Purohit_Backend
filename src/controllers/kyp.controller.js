@@ -89,7 +89,7 @@ const fillKYP = asyncHandler(async (req, res) => {
 
   await kyp.save();
 
-  res.status(200).json(new ApiResponse("KYP filled successfully", kyp));
+  res.status(200).json(new ApiResponse(200, kyp, "KYP filled successfully"));
 });
 
 const viewAllKYP = asyncHandler(async (req, res) => {
@@ -148,7 +148,7 @@ const viewKYP = asyncHandler(async (req, res) => {
   if (!kyp) {
     throw new ApiError(404, "KYP not found");
   }
-  return res.status(200).json(new ApiResponse("KYP is:", { kyp, user }));
+  return res.status(200).json(new ApiResponse(200, { kyp, user }, "KYP is:"));
 });
 
 const updateKYPStatus = asyncHandler(async (req, res) => {
@@ -168,7 +168,7 @@ const updateKYPStatus = asyncHandler(async (req, res) => {
   }
   user.isPandit = true;
   await user.save();
-  return res.status(200).json(new ApiResponse("KYP status updated", kyp));
+  return res.status(200).json(new ApiResponse(200, kyp, "KYP status updated"));
 });
 
 export { fillKYP, viewAllKYP, viewKYP, updateKYPStatus };
