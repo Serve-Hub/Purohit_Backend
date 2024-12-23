@@ -89,9 +89,7 @@ const fillKYP = asyncHandler(async (req, res) => {
 
   await kyp.save();
 
-  res
-    .status(200)
-    .json(new ApiResponse("KYP filled successfully", { kyp, user }));
+  res.status(200).json(new ApiResponse("KYP filled successfully", kyp));
 });
 
 const viewAllKYP = asyncHandler(async (req, res) => {
@@ -100,10 +98,22 @@ const viewAllKYP = asyncHandler(async (req, res) => {
   const limit = Math.max(1, parseInt(req.query.limit, 10) || 10); // Ensure limit is at least 1
   const skip = (page - 1) * limit;
 
-  const [allKYPs, totalCount] = await Promise.all([
+  const [kypRecords, totalCount] = await Promise.all([
     KYP.find().skip(skip).limit(limit),
     KYP.countDocuments(),
   ]);
+
+  const allKYPs = await Promise.all(
+    kypRecords.map(async (kyp) => {
+      const user = await User.findById(kyp.panditID).select("-password"); // Fetch user details
+      return {
+        ...kyp.toObject(),
+        userDetails: user || null, // Attach user details or null if not found
+        isUserKYP: !!user, // Indicate if the KYP belongs to a user
+      };
+    })
+  );
+
 
   // Calculate total pages
   const totalPages = Math.ceil(totalCount / limit);
@@ -126,15 +136,20 @@ const viewKYP = asyncHandler(async (req, res) => {
   console.log("inside viewKYP");
   const kypID = req.params.id;
   const validID = mongoose.isValidObjectId(kypID);
+
   if (!validID) {
     throw new ApiError(400, "Invalid KYP ID");
   }
 
   const kyp = await KYP.findById(kypID);
+  const user = await User.findById(kyp.panditID);
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
   if (!kyp) {
     throw new ApiError(404, "KYP not found");
   }
-  return res.status(200).json(new ApiResponse("KYP is:", kyp));
+  return res.status(200).json(new ApiResponse("KYP is:", { kyp, user }));
 });
 
 const updateKYPStatus = asyncHandler(async (req, res) => {
