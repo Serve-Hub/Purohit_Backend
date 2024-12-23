@@ -114,7 +114,6 @@ const viewAllKYP = asyncHandler(async (req, res) => {
     })
   );
 
-
   // Calculate total pages
   const totalPages = Math.ceil(totalCount / limit);
 
@@ -163,6 +162,12 @@ const updateKYPStatus = asyncHandler(async (req, res) => {
   if (!kyp) {
     throw new ApiError(404, "KYP not found");
   }
+  const user = await User.findById(kyp.panditID);
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
+  user.isPandit = true;
+  await user.save();
   return res.status(200).json(new ApiResponse("KYP status updated", kyp));
 });
 
