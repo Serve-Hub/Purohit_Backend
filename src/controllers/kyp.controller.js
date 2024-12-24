@@ -89,7 +89,9 @@ const fillKYP = asyncHandler(async (req, res) => {
 
   await kyp.save();
 
-  res.status(200).json(new ApiResponse(200, kyp, "KYP filled successfully"));
+  return res
+    .status(200)
+    .json(new ApiResponse(200, kyp, "KYP filled successfully"));
 });
 
 const viewAllKYP = asyncHandler(async (req, res) => {
@@ -118,7 +120,7 @@ const viewAllKYP = asyncHandler(async (req, res) => {
   const totalPages = Math.ceil(totalCount / limit);
 
   // Respond with paginated data
-  res.status(200).json(
+  return res.status(200).json(
     new ApiResponse("All KYPs are:", {
       data: allKYPs,
       pagination: {
