@@ -14,6 +14,10 @@ tags:
     description: "Operations related to user registration, login, and OTP management"
   - name: "Admin"
     description: "Operations related to admin user management and control"
+  - name: "KYP"
+    description: "Operations related to KYP form filling, viewing and verification"
+  - name: "Booking"
+    description: "Operations related to booking pujas and managing notifications"
 paths:
   /api/v1/users/register:
     post:
@@ -333,7 +337,7 @@ paths:
     patch:
       summary: Update the profile image for the user
       tags:
-        - Profile
+        - Users
       security:
         - bearerAuth: []
       requestBody:
@@ -926,6 +930,169 @@ paths:
                 $ref: "#/components/schemas/ApiResponse"
       security:
         - bearerAuth: []
+
+  /api/v1/booking/createBooking:
+    post:
+      summary: Create a new booking
+      tags:
+        - Booking
+      description: Create a booking for a specific puja.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                pujaId:
+                  type: string
+                  description: ID of the puja.
+                day:
+                  type: integer
+                  description: Day of the booking.
+                month:
+                  type: integer
+                  description: Month of the booking.
+                year:
+                  type: integer
+                  description: Year of the booking.
+                time:
+                  type: string
+                  description: Time of the booking.
+                location:
+                  type: string
+                  description: Location of the puja.
+                amount:
+                  type: number
+                  description: Amount for the puja.
+              required:
+                - pujaId
+                - day
+                - month
+                - year
+                - time
+                - location
+                - amount
+      responses:
+        201:
+          description: Booking created successfully.
+        400:
+          description: Missing or invalid fields.
+        401:
+          description: Unauthorized access.
+        404:
+          description: Puja or pandits not found.
+        500:
+          description: Server error.
+
+  /api/v1/booking/viewNotification:
+    get:
+      summary: View user notifications
+      tags:
+        - Booking
+      description: Retrieve notifications for the logged-in user.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
+      responses:
+        200:
+          description: Notifications retrieved successfully.
+        401:
+          description: Unauthorized access.
+
+  /api/v1/booking/acceptBookingNotification/{notificationId}:
+    post:
+      summary: Accept a booking notification
+      tags:
+        - Booking
+      description: Accept a booking notification by a pandit.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: notificationId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the notification.
+      responses:
+        200:
+          description: Booking accepted successfully.
+        400:
+          description: Notification already accepted or declined.
+        404:
+          description: Notification or booking not found.
+
+  /api/v1/booking/getAcceptedPandits/{bookingId}:
+    post:
+      summary: Get accepted pandits
+      tags:
+        - Booking
+      description: Retrieve the list of pandits who have accepted a booking request.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: bookingId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the booking.
+      responses:
+        200:
+          description: Accepted pandits retrieved successfully.
+        403:
+          description: Unauthorized access.
+        404:
+          description: Booking or accepted pandits not found.
+
+  /api/v1/booking/choosePanditForPuja:
+    post:
+      summary: Choose a pandit for the puja
+      tags:
+        - Booking
+      description: Select a pandit for the puja from the list of accepted pandits.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                bookingId:
+                  type: string
+                  description: ID of the booking.
+                panditId:
+                  type: string
+                  description: ID of the selected pandit.
+              required:
+                - bookingId
+                - panditId
+      responses:
+        200:
+          description: Pandit selected successfully.
+        400:
+          description: Pandit not among the accepted ones or already selected.
+        403:
+          description: Unauthorized access.
+        404:
+          description: Booking not found.
 
 security:
   - bearerAuth: []
