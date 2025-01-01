@@ -737,6 +737,42 @@ paths:
                     type: string
                     example: "Internal server error"
 
+  /api/v1/admin/getSpecificPuja/{id}:
+    get:
+      tags:
+        - "Admin"
+      summary: Get a specific puja by ID
+      description: Fetches the details of a puja by its unique ID.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            example: 64b7d85a8b541a0012345678
+          description: The ID of the Puja to fetch
+      responses:
+        "200":
+          description: Puja found successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+        "400":
+          description: Invalid Mongo id
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "404":
+          description: Puja not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
   /api/v1/admin/deletePuja/{id}:
     delete:
       tags:

@@ -106,6 +106,7 @@ export const emailRegister = asyncHandler(async (req, res) => {
     .status(201)
     .json(new ApiResponse(201, { token }, "OTP sent Success!"));
 });
+
 export const mobileRegister = asyncHandler(async (req, res) => {
   const { firstName, lastName, password, contact } = req.body;
   const trimmedContact = contact?.trim();

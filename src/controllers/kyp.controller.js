@@ -121,15 +121,19 @@ const viewAllKYP = asyncHandler(async (req, res) => {
 
   // Respond with paginated data
   return res.status(200).json(
-    new ApiResponse("All KYPs are:", {
-      data: allKYPs,
-      pagination: {
-        totalItems: totalCount,
-        totalPages: totalPages,
-        currentPage: page,
-        itemsPerPage: limit,
+    new ApiResponse(
+      200,
+      {
+        data: allKYPs,
+        pagination: {
+          totalItems: totalCount,
+          totalPages: totalPages,
+          currentPage: page,
+          itemsPerPage: limit,
+        },
       },
-    })
+      "All KYPs are:"
+    )
   );
 });
 
@@ -143,18 +147,24 @@ const viewKYP = asyncHandler(async (req, res) => {
   }
 
   const kyp = await KYP.findById(kypID);
+  if (!kyp) {
+    throw new ApiError(404, "KYP not found");
+  }
   const user = await User.findById(kyp.panditID);
   if (!user) {
     throw new ApiError(404, "User not found");
-  }
-  if (!kyp) {
-    throw new ApiError(404, "KYP not found");
   }
   return res.status(200).json(new ApiResponse(200, { kyp, user }, "KYP is:"));
 });
 
 const updateKYPStatus = asyncHandler(async (req, res) => {
   const kypID = req.params.id;
+  const validID = mongoose.isValidObjectId(kypID);
+
+  if (!validID) {
+    throw new ApiError(400, "Invalid KYP ID");
+  }
+
   const { status } = req.body;
   const kyp = await KYP.findByIdAndUpdate(
     kypID,

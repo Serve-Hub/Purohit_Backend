@@ -239,8 +239,8 @@ const choosePanditForPuja = asyncHandler(async (req, res) => {
     status: "Accepted",
   }).select("userID");
 
-  const acceptedPandits = acceptedNotifications.map((notif) =>
-    notif.userID.toString()
+  const acceptedPandits = acceptedNotifications.map((notification) =>
+    notification.userID.toString()
   );
 
   if (!acceptedPandits.includes(panditId)) {
@@ -262,7 +262,7 @@ const choosePanditForPuja = asyncHandler(async (req, res) => {
   // Notify the pandit about their selection
   await sendNotification({
     userId: panditId,
-    message: `You have been selected by ${req.user.firstName} for the puja.`,
+    message: `You have been selected by ${req.user.firstName} for the booking.`,
     type: "Booking Selection",
     relatedId: booking._id,
     relatedModel: "Booking",

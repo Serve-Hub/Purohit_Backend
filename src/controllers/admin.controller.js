@@ -158,6 +158,25 @@ const getPujas = asyncHandler(async (req, res) => {
   );
 });
 
+const getSpecificPuja = asyncHandler(async (req, res) => {
+  const { id: pujaId } = req.params;
+  const validID = mongoose.isValidObjectId(pujaId);
+
+  if (!validID) {
+    return res.status(400).send({ message: "Invalid Mongo id" });
+  }
+
+  const puja = await Puja.findById(pujaId);
+
+  if (!puja) {
+    throw new ApiError(404, "Puja not found");
+  }
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, puja, "Puja found successful."));
+});
+
 const deletePuja = asyncHandler(async (req, res) => {
   const pujaId = req.params.id;
   const validID = mongoose.isValidObjectId(pujaId);
@@ -392,4 +411,4 @@ const searchPuja = asyncHandler(async (req, res) => {
 //     )
 //   );
 // });
-export { addPuja, editPuja, getPujas, deletePuja, searchPuja };
+export { addPuja, editPuja, getPujas, deletePuja, searchPuja, getSpecificPuja };
