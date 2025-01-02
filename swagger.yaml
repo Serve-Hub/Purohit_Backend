@@ -275,6 +275,7 @@ paths:
           description: OTP resent successfully
         400:
           description: Invalid email or error in resending OTP
+
   /api/v1/users/addProfilePicture:
     post:
       summary: Add a profile image for the user
@@ -333,6 +334,7 @@ paths:
                   message:
                     type: string
                     example: User not found.
+
   /api/v1/users/updateProfileImage:
     patch:
       summary: Update the profile image for the user
@@ -808,6 +810,94 @@ paths:
               schema:
                 $ref: "#/components/schemas/ApiError"
 
+  /api/v1/admin/searchPuja:
+    get:
+      summary: Search for pujas by name
+      description: Retrieve a list of pujas matching a query string.
+      tags:
+        - Admin
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: query
+          in: query
+          description: The query string (i.e Puja name) to search for pujas
+          required: true
+          schema:
+            type: string
+            example: "Ghar Shanti"
+      responses:
+        "200":
+          description: Pujas found matching the query string
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 200
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        _id:
+                          type: string
+                          example: 60d21b4667d0d8992e610c85
+                        pujaName:
+                          type: string
+                          example: Ganesh Chaturthi Puja
+                        description:
+                          type: string
+                          example: A ritual to honor Lord Ganesha.
+                  message:
+                    type: string
+                    example: Pujas found matching the query string
+        "400":
+          description: Query string is missing
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 400
+                  message:
+                    type: string
+                    example: Query is required
+        "404":
+          description: No pujas found matching the query string
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 404
+                  data:
+                    type: array
+                    items:
+                      type: object
+                  message:
+                    type: string
+                    example: No pujas found
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 500
+                  message:
+                    type: string
+                    example: Internal server error
+
   /api/v1/kyp/fillKYP:
     post:
       summary: Fill KYP form for Pandit registration
@@ -935,7 +1025,7 @@ paths:
       security:
         - bearerAuth: []
 
-  /api/v1/kyp/updateKYPStatus/:id:
+  /api/v1/kyp/updateKYPStatus/{id}:
     put:
       summary: Update the status of a KYP
       tags:
