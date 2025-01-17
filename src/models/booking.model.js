@@ -32,17 +32,18 @@ const bookingSchema = new Schema(
       default: 0,
     },
     date: {
-      day: { type: Number, required: true },
-      month: { type: Number, required: true },
-      year: { type: Number, required: true },
+      type: String,
+      required: true,
     },
     time: {
       type: String,
       required: true,
     },
     location: {
-      type: String,
-      required: true,
+      province: { type: String, required: true },
+      district: { type: String, required: true },
+      municipality: { type: String, required: true },
+      tollAddress: { type: String, required: true },
     },
     status: {
       type: String,

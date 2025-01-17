@@ -12,6 +12,8 @@ import YAML from "yamljs"; // Import YAML parser
 import path from "path";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
+import { setupWebSocket } from "./config/websocket.js";
+import http from "http";
 
 // Get the current file path and directory
 const __filename = fileURLToPath(import.meta.url);
@@ -21,6 +23,7 @@ const __dirname = dirname(__filename);
 const swaggerDocument = YAML.load(path.join(__dirname, "../swagger.yaml")); // Adjust path if necessary
 
 const app = express();
+const server = http.createServer(app);
 
 app.get("/", (req, res) => {
   res.send("Hello, World!");
@@ -60,8 +63,14 @@ app.use("/api/v1/admin", adminRouter);
 app.use("/api/v1/kyp", kypRouter);
 app.use("/api/v1/booking", bookingRouter);
 
-// app.use((req, res, next) => {
-//   res.status(404).json({ message: "Route not found" });
-// });
+setupWebSocket(server);
+
+app.use((err, req, res, next) => {
+  console.error(err);
+  res.status(err.status || 500).json({
+    status: "error",
+    message: err.message || "Internal Server Error",
+  });
+});
 
 export default app;

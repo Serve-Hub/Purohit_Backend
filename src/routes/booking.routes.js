@@ -6,18 +6,37 @@ import {
   acceptBookingNotification,
   getAcceptedPandits,
   choosePanditForPuja,
+  markAllAsRead,
 } from "../controllers/booking.controller.js";
 
 const router = Router();
 
 router.use(verifyJWT); // Apply verifyJWT middleware to all routes in this file
-router.post("/createBooking", createBooking);
-router.get("/viewNotification", viewNotification);
-router.post(
-  "/acceptBookingNotification/:notificationId",
+
+// Create a booking
+router.post("/bookings", createBooking);
+
+// View notifications (with pagination)
+router.get("/notifications", viewNotification);
+
+// Mark all notifications as read
+router.put("/notifications/mark-all-as-read", markAllAsRead);
+
+// Accept a booking request (notification)
+router.put(
+  "/notifications/accept/:notificationId",
+
   acceptBookingNotification
 );
-router.post("/getAcceptedPandits/:bookingId", getAcceptedPandits);
-router.post("/choosePanditForPuja", choosePanditForPuja);
+
+// Get accepted pandits for a specific booking
+router.get(
+  "/bookings/:bookingId/accepted-pandits",
+
+  getAcceptedPandits
+);
+
+// Choose a pandit for a booking
+router.post("/bookings/choose-pandit", choosePanditForPuja);
 
 export default router;

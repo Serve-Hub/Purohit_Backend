@@ -1,7 +1,6 @@
 import app from "./app.js";
 import connectDB from "./database/connect.db.js";
 
-
 //Assigning a port
 const PORT = process.env.PORT;
 

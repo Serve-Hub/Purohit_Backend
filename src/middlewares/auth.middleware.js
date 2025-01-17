@@ -22,7 +22,18 @@ const verifyJWT = asyncHandler(async (req, res, next) => {
       throw new ApiError(401, "Unauthorized request");
     }
 
-    const decodedToken = verifyToken(token);
+    let decodedToken;
+    try {
+      decodedToken = verifyToken(token);
+    } catch (err) {
+      if (err instanceof jwt.TokenExpiredError) {
+        throw new ApiError(401, "Token has expired. Please log in again.");
+      }
+      if (err instanceof jwt.JsonWebTokenError) {
+        throw new ApiError(401, "Invalid token format or signature.");
+      }
+      throw new ApiError(401, "Invalid access token, error unknown");
+    }
 
     if (!decodedToken?._id) {
       throw new ApiError(401, "Invalid Access Token");

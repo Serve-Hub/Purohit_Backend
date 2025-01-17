@@ -17,7 +17,9 @@ tags:
   - name: "KYP"
     description: "Operations related to KYP form filling, viewing and verification"
   - name: "Booking"
-    description: "Operations related to booking pujas and managing notifications"
+    description: "Operations related to booking pujas "
+  - name: "Notification"
+    description: "Operations related to  managing notifications"
 paths:
   /api/v1/users/register:
     post:
@@ -276,9 +278,10 @@ paths:
         400:
           description: Invalid email or error in resending OTP
 
-  /api/v1/users/addProfilePicture:
-    post:
-      summary: Add a profile image for the user
+  /api/v1/users/profileImage:
+    patch:
+      summary: Add or update the profile image for the user
+      description: This endpoint allows the user to either add a new profile image or update an existing one.
       tags:
         - Users
       security:
@@ -296,7 +299,7 @@ paths:
                   description: The profile image file to upload.
       responses:
         "200":
-          description: Profile image added successfully
+          description: Profile image handled successfully
           content:
             application/json:
               schema:
@@ -307,7 +310,7 @@ paths:
                     example: 200
                   message:
                     type: string
-                    example: Profile image added successfully.
+                    example: Profile image handled successfully.
         "400":
           description: Avatar file is required
           content:
@@ -334,28 +337,8 @@ paths:
                   message:
                     type: string
                     example: User not found.
-
-  /api/v1/users/updateProfileImage:
-    patch:
-      summary: Update the profile image for the user
-      tags:
-        - Users
-      security:
-        - bearerAuth: []
-      requestBody:
-        required: true
-        content:
-          multipart/form-data:
-            schema:
-              type: object
-              properties:
-                avatar:
-                  type: string
-                  format: binary
-                  description: The new profile image file to upload.
-      responses:
-        "200":
-          description: Profile image updated successfully
+        "500":
+          description: Internal server error
           content:
             application/json:
               schema:
@@ -363,36 +346,10 @@ paths:
                 properties:
                   status:
                     type: integer
-                    example: 200
+                    example: 500
                   message:
                     type: string
-                    example: Profile image updated successfully.
-        "400":
-          description: Avatar file is required
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: integer
-                    example: 400
-                  message:
-                    type: string
-                    example: Avatar file is required.
-        "404":
-          description: User not found
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: integer
-                    example: 404
-                  message:
-                    type: string
-                    example: User not found.
+                    example: An unexpected error occurred.
 
   # /api/v1/users/login/phone:
   #   post:
@@ -1057,168 +1014,160 @@ paths:
       security:
         - bearerAuth: []
 
-  /api/v1/booking/createBooking:
-    post:
-      summary: Create a new booking
-      tags:
-        - Booking
-      description: Create a booking for a specific puja.
-      security:
-        - bearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                pujaId:
-                  type: string
-                  description: ID of the puja.
-                day:
-                  type: integer
-                  description: Day of the booking.
-                month:
-                  type: integer
-                  description: Month of the booking.
-                year:
-                  type: integer
-                  description: Year of the booking.
-                time:
-                  type: string
-                  description: Time of the booking.
-                location:
-                  type: string
-                  description: Location of the puja.
-                amount:
-                  type: number
-                  description: Amount for the puja.
-              required:
-                - pujaId
-                - day
-                - month
-                - year
-                - time
-                - location
-                - amount
-      responses:
-        201:
-          description: Booking created successfully.
-        400:
-          description: Missing or invalid fields.
-        401:
-          description: Unauthorized access.
-        404:
-          description: Puja or pandits not found.
-        500:
-          description: Server error.
-
-  /api/v1/booking/viewNotification:
+  /api/v1/booking/notifications:
     get:
-      summary: View user notifications
+      summary: View notifications with pagination
       tags:
-        - Booking
-      description: Retrieve notifications for the logged-in user.
+        - Notification
       security:
-        - bearerAuth: []
+        - BearerAuth: []
       parameters:
-        - name: page
-          in: query
+        - in: query
+          name: page
           required: false
           schema:
             type: integer
             default: 1
-        - name: limit
-          in: query
+        - in: query
+          name: limit
           required: false
           schema:
             type: integer
             default: 10
       responses:
         200:
-          description: Notifications retrieved successfully.
+          description: Notifications retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  notifications:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Notification"
+                  pagination:
+                    type: object
+                    properties:
+                      currentPage:
+                        type: integer
+                      totalPages:
+                        type: integer
+                      totalNotifications:
+                        type: integer
+                      limit:
+                        type: integer
         401:
-          description: Unauthorized access.
+          description: Unauthorized - user not authenticated
 
-  /api/v1/booking/acceptBookingNotification/{notificationId}:
-    post:
-      summary: Accept a booking notification
+  /api/v1/booking/notifications/mark-all-as-read:
+    put:
+      summary: Mark all notifications as read
       tags:
-        - Booking
-      description: Accept a booking notification by a pandit.
+        - Notification
       security:
-        - bearerAuth: []
+        - BearerAuth: []
+      responses:
+        200:
+          description: All notifications marked as read
+        404:
+          description: No unread notifications found
+        401:
+          description: Unauthorized - user not authenticated
+
+  /api/v1/booking/notifications/accept/{notificationId}:
+    put:
+      summary: Accept a booking request notification
+      tags:
+        - Notification
+      security:
+        - BearerAuth: []
       parameters:
-        - name: notificationId
-          in: path
+        - in: path
+          name: notificationId
           required: true
           schema:
             type: string
-          description: ID of the notification.
+          description: The ID of the notification to accept
       responses:
         200:
-          description: Booking accepted successfully.
+          description: Notification accepted successfully
         400:
-          description: Notification already accepted or declined.
+          description: Notification already accepted or declined
         404:
-          description: Notification or booking not found.
+          description: Notification or related booking not found
+        401:
+          description: Unauthorized - user not authenticated
 
-  /api/v1/booking/getAcceptedPandits/{bookingId}:
-    post:
-      summary: Get accepted pandits
+  /api/v1/booking/bookings/{bookingId}/accepted-pandits:
+    get:
+      summary: Get list of accepted pandits for a booking
       tags:
         - Booking
-      description: Retrieve the list of pandits who have accepted a booking request.
       security:
-        - bearerAuth: []
+        - BearerAuth: []
       parameters:
-        - name: bookingId
-          in: path
+        - in: path
+          name: bookingId
           required: true
           schema:
             type: string
-          description: ID of the booking.
+          description: The ID of the booking to retrieve accepted pandits for
       responses:
         200:
-          description: Accepted pandits retrieved successfully.
-        403:
-          description: Unauthorized access.
+          description: Accepted pandits retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
         404:
-          description: Booking or accepted pandits not found.
+          description: No accepted pandits found
+        401:
+          description: Unauthorized - user not authenticated
 
-  /api/v1/booking/choosePanditForPuja:
+  /api/v1/booking/bookings/choose-pandit:
     post:
-      summary: Choose a pandit for the puja
+      summary: Choose a pandit for a booking
       tags:
         - Booking
-      description: Select a pandit for the puja from the list of accepted pandits.
       security:
-        - bearerAuth: []
+        - BearerAuth: []
       requestBody:
-        required: true
+        description: Details to select a pandit for the booking
         content:
           application/json:
             schema:
               type: object
-              properties:
-                bookingId:
-                  type: string
-                  description: ID of the booking.
-                panditId:
-                  type: string
-                  description: ID of the selected pandit.
               required:
                 - bookingId
                 - panditId
+              properties:
+                bookingId:
+                  type: string
+                  description: The ID of the booking.
+                panditId:
+                  type: string
+                  description: The ID of the pandit to choose for the booking.
       responses:
         200:
-          description: Pandit selected successfully.
+          description: Pandit selected successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  booking:
+                    $ref: "#/components/schemas/Booking"
         400:
-          description: Pandit not among the accepted ones or already selected.
-        403:
-          description: Unauthorized access.
+          description: Pandit not accepted or already selected
         404:
-          description: Booking not found.
+          description: Booking not found
+        401:
+          description: Unauthorized - user not authenticated
 
 security:
   - bearerAuth: []

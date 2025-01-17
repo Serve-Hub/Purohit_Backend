@@ -9,8 +9,9 @@ import registerUser, {
   googleLogin,
   loginPhoneUser,
   getCurrentUser,
-  addProfileImage,
-  updateProfileImage,
+  handleProfileImage,
+  updateAccountDetails,
+  updatePassword,
 } from "../controllers/user.controller.js";
 import {
   verifyOTP,
@@ -60,11 +61,11 @@ router.route("/emailResetPassword").post(emailResetPassword);
 //protected route
 router.route("/getCurrentUser").get(verifyJWT, getCurrentUser);
 router
-  .route("/addProfilePicture")
-  .post(verifyJWT, upload.single("avatar"), addProfileImage);
+  .route("/profileImage")
+  .patch(verifyJWT, upload.single("avatar"), handleProfileImage);
 
-router
-  .route("/updateProfileImage")
-  .patch(verifyJWT, upload.single("avatar"), updateProfileImage);
+router.route("/updateAccountDetails").patch(verifyJWT, updateAccountDetails);
+
+router.route("/updatePassword").patch(verifyJWT, updatePassword);
 
 export default router;

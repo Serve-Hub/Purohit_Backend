@@ -381,9 +381,9 @@ export const getCurrentUser = asyncHandler(async (req, res) => {
 });
 
 export const updateAccountDetails = asyncHandler(async (req, res) => {
-  const { firstName, lastName, email, contact } = req.body;
+  const { firstName, lastName, contact } = req.body;
 
-  if (!firstName || !lastName || !email) {
+  if (!firstName || !lastName) {
     throw new ApiError(400, "All fields are required");
   }
   const user = await User.findByIdAndUpdate(
@@ -392,7 +392,6 @@ export const updateAccountDetails = asyncHandler(async (req, res) => {
       $set: {
         firstName,
         lastName,
-        email,
         contact,
       },
     },
@@ -404,57 +403,57 @@ export const updateAccountDetails = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, user, "Account details updated successfully."));
 });
 
-export const addProfileImage = asyncHandler(async (req, res) => {
-  if (!req.file) {
-    throw new ApiError(400, "Avatar file is required.");
-  }
-  const avatarLocalPath = req.file?.path;
+export const updatePassword = asyncHandler(async (req, res) => {
+  const { oldPassword, newPassword, confirmPassword } = req.body;
 
-  if (!avatarLocalPath) {
-    throw new ApiError(400, "Avatar file is required.");
+  if (!newPassword || !confirmPassword || !oldPassword) {
+    throw new ApiError(400, "All fields are required");
   }
-  const avatarImage = await uploadOnCloudinary(avatarLocalPath);
 
-  const user = await User.findByIdAndUpdate(
-    req.user?._id,
-    {
-      $set: {
-        avatar: avatarImage.url,
-      },
-    },
-    { new: true }
-  ).select("-password");
-  if (!user) {
-    throw new ApiError(404, "User not found.");
+  if (newPassword !== confirmPassword) {
+    throw new ApiError(400, "Password match failed");
   }
+
+  const user = await User.findById(req.user?._id);
+  const isPasswordCorrect = await user.isPasswordCorrect(oldPassword);
+  if (!isPasswordCorrect) {
+    throw new ApiError(400, "Invalid old password");
+  }
+
+  const hashedPassword = await bcrypt.hash(newPassword, 10);
+  user.password = hashedPassword;
+  await user.save({ validateBeforeSave: false });
 
   return res
     .status(200)
-    .json(new ApiResponse(200, "Profile image added successfully."));
+    .json(new ApiResponse(200, {}, "Password updated successfully"));
 });
 
-export const updateProfileImage = asyncHandler(async (req, res) => {
+export const handleProfileImage = asyncHandler(async (req, res) => {
   if (!req.file) {
     throw new ApiError(400, "Avatar file is required.");
   }
-  const avatarLocalPath = req.file?.path;
 
+  const avatarLocalPath = req.file?.path;
   if (!avatarLocalPath) {
     throw new ApiError(400, "Avatar file is required.");
   }
+
   const user = await User.findById(req.user?._id).select("avatar");
   if (!user) {
     throw new ApiError(404, "User not found.");
   }
 
+  // If an avatar already exists, delete it from Cloudinary
   if (user.avatar) {
-    // Extract the public ID of the current image
     const publicId = user.avatar.split("/").pop().split(".")[0];
     await deleteFromCloudinary(publicId);
   }
 
+  // Upload the new avatar
   const avatarImage = await uploadOnCloudinary(avatarLocalPath);
 
+  // Update the user's avatar in the database
   const updatedUser = await User.findByIdAndUpdate(
     req.user?._id,
     {
@@ -467,7 +466,7 @@ export const updateProfileImage = asyncHandler(async (req, res) => {
 
   return res
     .status(200)
-    .json(new ApiResponse(200, {}, "Profile image updated successfully."));
+    .json(new ApiResponse(200, {}, "Profile image handled successfully."));
 });
 
 export const googleLogin = asyncHandler(async (req, res) => {

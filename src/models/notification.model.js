@@ -28,7 +28,7 @@ const notificationSchema = new Schema(
       default: "General",
     },
     relatedId: {
-      type: Schema.Types.ObjectId, // Reference to related booking, pooja, etc.
+      type: Schema.Types.ObjectId, 
       refPath: "relatedModel",
     },
     relatedModel: {
