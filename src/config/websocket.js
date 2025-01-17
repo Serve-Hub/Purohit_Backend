@@ -30,7 +30,6 @@ function setupWebSocket(server) {
 
       ws.on("close", () => {
         clients.delete(user.id);
-        userRoles.delete(user.id);
         console.log(`User disconnected: ${user.id}`);
       });
     } catch (error) {

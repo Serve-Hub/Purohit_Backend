@@ -1,9 +1,5 @@
 import Notification from "../models/notification.model.js";
-import { setupWebSocket } from "./config/websocket.js"; // WebSocket server setup
 import asyncHandler from "../utils/asyncHandler.js";
-
-// Set up WebSocket server instance from your existing config
-const wss = setupWebSocket();
 
 // Function to save the notification to the database
 const saveNotificationToDatabase = asyncHandler(async (notificationData) => {
