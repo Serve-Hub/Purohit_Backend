@@ -1014,6 +1014,61 @@ paths:
       security:
         - bearerAuth: []
 
+  /api/v1/booking/bookings/{pujaId}:
+    post:
+      summary: Create a new booking
+      tags:
+        - Booking
+      security:
+        - BearerAuth: []
+      description: Create a new booking for a puja.
+      parameters:
+        - name: pujaId
+          in: path
+          required: true
+          description: ID of the puja to book
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                date:
+                  type: string
+                  format: date
+                  description: Date of the puja.
+                time:
+                  type: string
+                  description: Time of the puja.
+                province:
+                  type: string
+                  description: Province of the puja location.
+                district:
+                  type: string
+                  description: District of the puja location.
+                municipality:
+                  type: string
+                  description: Municipality of the puja location.
+                tollAddress:
+                  type: string
+                  description: Address of the puja location.
+                amount:
+                  type: number
+                  format: double
+                  description: Amount for the puja.
+      responses:
+        201:
+          description: Booking successfully created.
+        400:
+          description: Missing required fields or puja already booked.
+        401:
+          description: Unauthorized user.
+        404:
+          description: Puja or pandits not found.
+
   /api/v1/booking/notifications:
     get:
       summary: View notifications with pagination
@@ -1022,18 +1077,16 @@ paths:
       security:
         - BearerAuth: []
       parameters:
-        - in: query
-          name: page
-          required: false
+        - name: page
+          in: query
           schema:
             type: integer
-            default: 1
-        - in: query
-          name: limit
-          required: false
+          description: Page number for pagination.
+        - name: limit
+          in: query
           schema:
             type: integer
-            default: 10
+          description: Number of notifications per page.
       responses:
         200:
           description: Notifications retrieved successfully
@@ -1169,6 +1222,16 @@ paths:
         401:
           description: Unauthorized - user not authenticated
 
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+          description: Page number for pagination.
+        - name: limit
+          in: query
+          schema:
+            type: integer
 security:
   - bearerAuth: []
 components:
