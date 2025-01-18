@@ -45,16 +45,16 @@ function setupWebSocket(server) {
     }
   });
 
-  setInterval(() => {
-    wss.clients.forEach((client) => {
-      if (!client.isAlive) {
-        console.log("Terminating stale connection");
-        return client.terminate();
-      }
-      client.isAlive = false;
-      client.ping();
-    });
-  }, 30000); // Heartbeat check every 30 seconds
+  // setInterval(() => {
+  //   wss.clients.forEach((client) => {
+  //     if (!client.isAlive) {
+  //       console.log("Terminating stale connection");
+  //       return client.terminate();
+  //     }
+  //     client.isAlive = false;
+  //     client.ping();
+  //   });
+  // }, 30000); // Heartbeat check every 30 seconds
 
   return {
     sendNotificationToSpecificUser: (targetUserId, notification) => {
