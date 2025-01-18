@@ -7,18 +7,29 @@ import { setupWebSocket } from "./config/websocket.js";
 const PORT = process.env.PORT;
 const server = http.createServer(app);
 
-//Database Connection
-connectDB()
-  .then(() => {
-    // Create HTTP server to pass to WebSocket
+let wss;
 
-    // Set up WebSocket with HTTP server
+const startServer = async () => {
+  try {
+    // Database Connection
+    await connectDB();
+    console.log("Connected to MongoDB successfully!");
 
+    // Set up WebSocket with the HTTP server
+    wss = setupWebSocket(server);
+
+    // Start the server
     server.listen(PORT, () => {
       console.log(`App is listening at port ${PORT}`);
     });
-    setupWebSocket(server);
-  })
-  .catch((err) => {
-    console.log("MONGO db connection failed!!!", err);
-  });
+
+    // Optionally, log WebSocket server initialization
+    console.log("WebSocket server initialized!");
+  } catch (error) {
+    console.error("Failed to start the server:", error.message);
+  }
+};
+
+// Start the application
+startServer();
+export { wss };

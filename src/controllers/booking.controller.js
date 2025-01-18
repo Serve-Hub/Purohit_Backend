@@ -11,7 +11,7 @@ import {
 import Notification from "../models/notification.model.js";
 
 const createBooking = asyncHandler(async (req, res) => {
-  const { date, time, province, district, municipality, tollAddress, amount } =
+  const { date, time, province, district, municipality, tollAddress } =
     req.body;
 
   if (
@@ -20,8 +20,7 @@ const createBooking = asyncHandler(async (req, res) => {
     !province ||
     !district ||
     !municipality ||
-    !tollAddress ||
-    !amount
+    !tollAddress
   ) {
     throw new ApiError(400, "Please provide all the required fields.");
   }
@@ -36,15 +35,11 @@ const createBooking = asyncHandler(async (req, res) => {
 
   const existingBooking = await Booking.findOne({
     pujaID: pujaId,
-    date,
-    time,
+    userID: userID,
   });
 
   if (existingBooking) {
-    throw new ApiError(
-      400,
-      "This Puja is already booked for the selected time."
-    );
+    throw new ApiError(400, "You have  already booked this puja.");
   }
 
   const booking = new Booking({
@@ -58,7 +53,6 @@ const createBooking = asyncHandler(async (req, res) => {
       municipality,
       tollAddress,
     },
-    amount,
   });
 
   const savedBooking = await booking.save();
@@ -85,6 +79,7 @@ const createBooking = asyncHandler(async (req, res) => {
         relatedId: savedBooking._id,
         relatedModel: "Booking",
       };
+      
 
       // Send the notification and handle WebSocket communication in the service
       await sendNotificationToPandits(

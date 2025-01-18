@@ -14,7 +14,7 @@ const router = Router();
 router.use(verifyJWT); // Apply verifyJWT middleware to all routes in this file
 
 // Create a booking
-router.post("/bookings:bookingId", createBooking);
+router.post("/bookings/:pujaId", createBooking);
 
 // View notifications (with pagination)
 router.get("/notifications", viewNotification);
