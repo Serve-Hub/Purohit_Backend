@@ -1,6 +1,6 @@
 // websocket.config.js
 import { WebSocketServer } from "ws";
-import jwt from "jsonwebtoken";
+
 import User from "../models/user.model.js";
 
 function setupWebSocket(server) {
@@ -10,49 +10,25 @@ function setupWebSocket(server) {
   const clients = new Map();
 
   wss.on("connection", async (ws, req) => {
-    // Extract token from the connection query string
-    const token =
-      req.cookies?.accessToken ||
-      req.header("Authorization")?.replace("Bearer ", "").trim();
-
-    if (!token) {
-      ws.close(4001, "Token not provided");
-      return;
-    }
-    let decodedToken;
+    const params = new URLSearchParams(req.url.split("?")[1]);
+    const userId = params.get("userID");
     try {
-      decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-    } catch (err) {
-      if (err instanceof jwt.TokenExpiredError) {
-        ws.close(4001, "Token has expired. Please log in again.");
-      }
-      if (err instanceof jwt.JsonWebTokenError) {
-        ws.close(4001, "Invalid token format or signature.");
-      }
-      ws.close(4001, "Invalid access token, error unknown");
-    }
-
-    if (!decodedToken?._id) {
-      ws.close(4001, "Invalid Access Token");
-    }
-    try {
-      // Verify JWT token and get user information
-      const user = await User.findById(decodedToken._id).select(
+      const user = await User.findById(userId).select(
         "-password -refreshToken"
       );
       if (!user) {
         throw new ApiError(401, "User not found for the given token");
       }
       clients.set(user._id, ws);
-      console.log(`User connected: ${user.id}`);
+      console.log(`User connected: ${user._id}`);
 
       ws.on("message", (message) => {
-        console.log(`Received message from ${user.id}: ${message}`);
+        console.log(`Received message from ${user._id}: ${message}`);
       });
 
       ws.on("close", () => {
-        clients.delete(user.id);
-        console.log(`User disconnected: ${user.id}`);
+        clients.delete(user._id);
+        console.log(`User disconnected: ${user._id}`);
       });
     } catch (error) {
       ws.close(4002, "Invalid token");
@@ -64,7 +40,7 @@ function setupWebSocket(server) {
       const client = clients.get(targetUserId);
       if (client && client.readyState === client.OPEN) {
         client.send(JSON.stringify(notification));
-        console.log(`Notification sent to user: ${targetUserId}`);
+        console.log(`Socket Notification sent to user: ${targetUserId}`);
       } else {
         console.log(`Target user ${targetUserId} is not connected`);
       }

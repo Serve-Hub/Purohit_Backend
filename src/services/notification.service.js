@@ -6,7 +6,6 @@ const saveNotificationToDatabase = async (notificationData) => {
   try {
     const notification = new Notification(notificationData);
     await notification.save();
-    console.log("Notification saved to database");
     return notification;
   } catch (error) {
     console.error("Error saving notification to database:", error.message);
@@ -27,10 +26,6 @@ const sendNotificationToSpecificUser = async (
 
     // Step 2: Send the notification to the specific user via WebSocket
     wss.sendNotificationToSpecificUser(targetUserId, savedNotification);
-
-    console.log(
-      `Notification sent to user ${targetUserId}: ${savedNotification.message}`
-    );
   } catch (error) {
     console.error(
       `Error sending notification to user ${targetUserId}:`,
@@ -52,7 +47,6 @@ const sendNotificationToPandits = async (
     const savedNotification = await saveNotificationToDatabase(
       notificationData
     );
- 
 
     // Add pujaInfo, bookingInfo, and userInfo to the notification
     savedNotification.pujaInfo = pujaInfo;
@@ -61,10 +55,6 @@ const sendNotificationToPandits = async (
 
     // Step 2: Send the notification to the specific user via WebSocket
     wss.sendNotificationToSpecificUser(targetUserId, savedNotification);
-  
-    console.log(
-      `Notification sent to user ${targetUserId}: ${savedNotification.message}`
-    );
   } catch (error) {
     console.error(
       `Error sending notification to pandit ${targetUserId}:`,

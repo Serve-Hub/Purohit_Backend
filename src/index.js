@@ -7,7 +7,7 @@ import { setupWebSocket } from "./config/websocket.js";
 const PORT = process.env.PORT;
 const server = http.createServer(app);
 
-let wss;
+let wss; 
 
 const startServer = async () => {
   try {
