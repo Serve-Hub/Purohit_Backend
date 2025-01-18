@@ -1,6 +1,5 @@
-// websocket.config.js
 import { WebSocketServer } from "ws";
-
+import url from "url";
 import User from "../models/user.model.js";
 
 function setupWebSocket(server) {
@@ -10,47 +9,68 @@ function setupWebSocket(server) {
   const clients = new Map();
 
   wss.on("connection", async (ws, req) => {
-    const params = new URLSearchParams(req.url.split("?")[1]);
-    const userId = params.get("userID");
+    const queryObject = url.parse(req.url, true).query;
+    const userId = queryObject.userID;
+
     try {
       const user = await User.findById(userId).select(
         "-password -refreshToken"
       );
       if (!user) {
-        throw new ApiError(401, "User not found for the given token");
+        console.error(`User not found for userID: ${userId}`);
+        ws.close(4002, "User authentication fobjectailed.");
+        return;
       }
-      clients.set(user._id, ws);
-      console.log(`User connected: ${user._id}`);
+
+      clients.set(userId, ws);
+
+      console.log(`User connected: ${userId}`);
+      // console.log(clients.get(userId));
+      const heartbeat = () => (ws.isAlive = true);
+      ws.isAlive = true;
+      ws.on("pong", heartbeat);
 
       ws.on("message", (message) => {
-        console.log(`Received message from ${user._id}: ${message}`);
+        console.log(`Received message from ${userId}: ${message}`);
       });
 
       ws.on("close", () => {
-        clients.delete(user._id);
-        console.log(`User disconnected: ${user._id}`);
+        clients.delete(userId);
+        ws.removeAllListeners();
+        console.log(`User disconnected: ${userId}`);
       });
     } catch (error) {
-      ws.close(4002, "Invalid token");
+      console.error(`Error during WebSocket setup: ${error.message}`);
+      ws.close(4002, "Internal server error during WebSocket setup.");
     }
   });
 
+  setInterval(() => {
+    wss.clients.forEach((client) => {
+      if (!client.isAlive) {
+        console.log("Terminating stale connection");
+        return client.terminate();
+      }
+      client.isAlive = false;
+      client.ping();
+    });
+  }, 30000); // Heartbeat check every 30 seconds
+
   return {
     sendNotificationToSpecificUser: (targetUserId, notification) => {
-      const client = clients.get(targetUserId);
+      const userId = targetUserId.toString();
+      const client = clients.get(userId);
       if (client && client.readyState === client.OPEN) {
         client.send(JSON.stringify(notification));
-        console.log(`Socket Notification sent to user: ${targetUserId}`);
+        console.log(`Socket Notification sent to user: ${userId}`);
       } else {
-        console.log(`Target user ${targetUserId} is not connected`);
+        console.log(`Target user ${userId} is not connected`);
       }
     },
 
     broadcastNotification: (notification, senderId) => {
       for (const [userId, client] of clients.entries()) {
-        // Skip sending the notification to the sender
-        if (userId === senderId) continue;
-
+        if (userId === senderId) continue; // Skip sending notification to the sender
         if (client.readyState === client.OPEN) {
           client.send(JSON.stringify(notification));
           console.log(`Notification sent to user: ${userId}`);

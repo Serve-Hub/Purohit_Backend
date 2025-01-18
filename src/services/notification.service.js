@@ -49,12 +49,22 @@ const sendNotificationToPandits = async (
     );
 
     // Add pujaInfo, bookingInfo, and userInfo to the notification
-    savedNotification.pujaInfo = pujaInfo;
-    savedNotification.bookingInfo = bookingInfo;
-    savedNotification.userInfo = userInfo;
+    console.log("savedNotification", savedNotification);
+    console.log("pujaInfo", pujaInfo);
+    console.log("bookingInfo", bookingInfo);
+
+    const finalNotification = {
+      ...savedNotification.toObject(), // Use toObject to convert the Mongoose document to plain object
+      pujaInfo,
+      bookingInfo,
+      userInfo,
+    };
+
+    // Now, you can proceed with the logic to send the notification, whether through WebSocket, email, etc.
+    console.log("Final notification prepared:", finalNotification);
 
     // Step 2: Send the notification to the specific user via WebSocket
-    wss.sendNotificationToSpecificUser(targetUserId, savedNotification);
+    wss.sendNotificationToSpecificUser(targetUserId, finalNotification);
   } catch (error) {
     console.error(
       `Error sending notification to pandit ${targetUserId}:`,
