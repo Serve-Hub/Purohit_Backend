@@ -12,6 +12,7 @@ import registerUser, {
   handleProfileImage,
   updateAccountDetails,
   updatePassword,
+  handleCoverImage,
 } from "../controllers/user.controller.js";
 import {
   verifyOTP,
@@ -63,6 +64,10 @@ router.route("/getCurrentUser").get(verifyJWT, getCurrentUser);
 router
   .route("/profileImage")
   .patch(verifyJWT, upload.single("avatar"), handleProfileImage);
+
+router
+  .route("/coverImage")
+  .patch(verifyJWT, upload.single("coverPhoto"), handleCoverImage);
 
 router.route("/updateAccountDetails").patch(verifyJWT, updateAccountDetails);
 

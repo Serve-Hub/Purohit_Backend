@@ -23,6 +23,10 @@ const userSchema = new Schema(
       type: String,
       required: false,
     },
+    coverPhoto: {
+      type: String,
+      required: false,
+    },
     email: {
       type: String,
       required: false,

@@ -2,9 +2,14 @@ import { Schema, model } from "mongoose";
 
 const notificationSchema = new Schema(
   {
-    userID: {
+    receiverID: {
       type: Schema.Types.ObjectId,
-      ref: "User", // Reference to the User model
+      ref: "User", // Reference to the user who will receive the notification
+      required: true,
+    },
+    senderID: {
+      type: Schema.Types.ObjectId,
+      ref: "User", // Reference to the user who will receive the notification
       required: true,
     },
     isRead: {
@@ -28,7 +33,7 @@ const notificationSchema = new Schema(
       default: "General",
     },
     relatedId: {
-      type: Schema.Types.ObjectId, 
+      type: Schema.Types.ObjectId,
       refPath: "relatedModel",
     },
     relatedModel: {

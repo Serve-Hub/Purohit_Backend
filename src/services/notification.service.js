@@ -59,12 +59,15 @@ const sendNotificationToPandits = async (
       bookingInfo,
       userInfo,
     };
+    const finalNotificationArray = Object.keys(finalNotification).map((key) => {
+      return { [key]: finalNotification[key] };
+    });
 
     // Now, you can proceed with the logic to send the notification, whether through WebSocket, email, etc.
-    console.log("Final notification prepared:", finalNotification);
+    console.log("Final notification prepared:", finalNotificationArray);
 
     // Step 2: Send the notification to the specific user via WebSocket
-    wss.sendNotificationToSpecificUser(targetUserId, finalNotification);
+    wss.sendNotificationToSpecificUser(targetUserId, finalNotificationArray);
   } catch (error) {
     console.error(
       `Error sending notification to pandit ${targetUserId}:`,

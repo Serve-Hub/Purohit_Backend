@@ -73,13 +73,13 @@ const createBooking = asyncHandler(async (req, res) => {
     .filter((pandit) => pandit._id.toString() !== user._id.toString()) // Exclude the user who made the booking
     .map(async (pandit) => {
       const notificationData = {
-        userID: pandit._id,
-        message: `New booking request for ${pujaInfo.pujaName}  on ${date} at ${time}.`,
+        senderID: user._id,
+        receiverID: pandit._id,
+        message: `New booking request for ${pujaInfo.pujaName} by ${req.user.firstName} on ${date} at ${time}.`,
         type: "Booking Request",
         relatedId: savedBooking._id,
         relatedModel: "Booking",
       };
-      
 
       // Send the notification and handle WebSocket communication in the service
       await sendNotificationToPandits(
@@ -135,14 +135,15 @@ const viewNotification = asyncHandler(async (req, res) => {
 
   // Fetch notifications with pagination
   const [notifications, totalNotifications] = await Promise.all([
-    Notification.find({ userID: userId }) // Directly find notifications for the logged-in user
+    Notification.find({ receiverID: userId }) // Directly find notifications for the logged-in user
       .skip(skip)
       .limit(limit)
       .sort({ createdAt: -1 }), // Sort by newest first
-    Notification.countDocuments({ userID: userId }), // Count notifications for the user
+    Notification.countDocuments({ receiverID: userId }), // Count notifications for the user
   ]);
 
-  const totalPages = Math.ceil(totalNotifications / limit);
+  const totalPages =
+    totalNotifications > 0 ? Math.ceil(totalNotifications / limit) : 0;
 
   //  await Notification.updateMany(
   //  { userID: userId, isRead: false }, // Only update unread notifications
@@ -151,35 +152,30 @@ const viewNotification = asyncHandler(async (req, res) => {
   //
 
   // Fetch bookings related to the user for enriching notifications
-  const bookings = await Booking.find({ userID: userId });
 
   const notificationsWithBookingInfo = await Promise.all(
     notifications.map(async (notification) => {
-      if (notification.relatedModel === "Booking") {
-        const booking = bookings.find(
-          (b) => b._id.toString() === notification.relatedId
-        );
-
-        if (booking) {
-          // Add booking details to the notification if the booking is found
-          notification.bookingDetails = {
-            pujaName: booking.pujaID
-              ? await Puja.findById(booking.pujaID).select("pujaName")
-              : null,
-            date: `${booking.date.day}/${booking.date.month}/${booking.date.year}`,
-            time: booking.time,
-            location: booking.location,
-            amount: booking.amount,
-            userID: booking.userID,
-          };
-        } else {
-          // If booking is not found, ensure no booking details are included
-          notification.bookingDetails = null;
+      const notifObj = notification.toObject();
+      try {
+        if (notifObj.relatedModel === "Booking") {
+          const booking = await Booking.findById(notifObj.relatedId).lean();
+          notifObj.bookingDetails = booking || null;
+          if (booking) {
+            const pujaDetail = await Puja.findById(booking.pujaID)
+              .select("-password -refreshToken")
+              .lean();
+            notifObj.pujaDetails = pujaDetail || null;
+          }
         }
+        const senderUser = await User.findById(notifObj.senderID).lean();
+        notifObj.senderDetails = senderUser || null;
+      } catch (error) {
+        console.error("Error fetching notification:", error);
       }
-      return notification;
+      return notifObj;
     })
   );
+
   // Respond with paginated notifications
   return res.status(200).json(
     new ApiResponse(
@@ -224,7 +220,8 @@ const acceptBookingNotification = asyncHandler(async (req, res) => {
 
   // Notify the user that the pandit has accepted the booking
   const notificationData = {
-    userID: user._id,
+    senderID: req.user._id,
+    receiverID: user._id,
     message: `Pandit ${req.user.firstName} has accepted the booking for ${booking.pujaID}.`,
     type: "Booking Acceptance",
     relatedId: booking._id,
@@ -236,6 +233,34 @@ const acceptBookingNotification = asyncHandler(async (req, res) => {
   return res
     .status(200)
     .json(new ApiResponse(200, notification, "Booking Notification accepted."));
+});
+
+const rejectBookingNotification = asyncHandler(async (req, res) => {
+  const { notificationId } = req.params; // The ID of the notification the pandit rejects
+
+  // Fetch the notification
+  const notification = await Notification.findById(notificationId);
+  if (!notification) throw new ApiError(404, "Notification not found.");
+
+  // Find the recipient's record for the pandit in the notification's recipients array
+  if (notification.status !== "Pending") {
+    throw new ApiError(400, "Notification already accepted or declined.");
+  }
+
+  notification.status = "Rejected";
+  await notification.save();
+
+  // Find the related booking
+  const booking = await Booking.findById(notification.relatedId);
+  if (!booking) {
+    throw new ApiError(404, "Booking not found.");
+  }
+
+  const user = await User.findById(booking.userID);
+  if (!user) throw new ApiError(404, "User not found.");
+  return res
+    .status(200)
+    .json(new ApiResponse(200, notification, "Booking Notification rejected."));
 });
 
 const getAcceptedPandits = asyncHandler(async (req, res) => {
@@ -315,7 +340,8 @@ const choosePanditForPuja = asyncHandler(async (req, res) => {
 
   // Notify the selected pandit
   const notificationData = {
-    userID: panditId,
+    senderID: req.user._id,
+    receiverID: panditId,
     message: `You have been selected for the booking of ${booking.pujaID}.`,
     type: "Booking Selection",
     relatedId: booking._id,
@@ -333,6 +359,7 @@ export {
   createBooking,
   viewNotification,
   acceptBookingNotification,
+  rejectBookingNotification,
   getAcceptedPandits,
   choosePanditForPuja,
   markAllAsRead,

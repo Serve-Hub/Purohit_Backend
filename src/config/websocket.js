@@ -7,10 +7,16 @@ function setupWebSocket(server) {
 
   // Map to store active WebSocket connections
   const clients = new Map();
+  const heartbeat = () => (this.isAlive = true);
 
   wss.on("connection", async (ws, req) => {
     const queryObject = url.parse(req.url, true).query;
     const userId = queryObject.userID;
+
+    if (!userId) {
+      ws.close(4001, "Missing userID in query params.");
+      return;
+    }
 
     try {
       const user = await User.findById(userId).select(
@@ -23,12 +29,10 @@ function setupWebSocket(server) {
       }
 
       clients.set(userId, ws);
-
-      console.log(`User connected: ${userId}`);
-      // console.log(clients.get(userId));
-      const heartbeat = () => (ws.isAlive = true);
       ws.isAlive = true;
       ws.on("pong", heartbeat);
+      console.log(`User connected: ${userId}`);
+      // console.log(clients.get(userId));
 
       ws.on("message", (message) => {
         console.log(`Received message from ${userId}: ${message}`);
@@ -45,17 +49,14 @@ function setupWebSocket(server) {
     }
   });
 
-  // setInterval(() => {
-  //   wss.clients.forEach((client) => {
-  //     if (!client.isAlive) {
-  //       console.log("Terminating stale connection");
-  //       return client.terminate();
-  //     }
-  //     client.isAlive = false;
-  //     client.ping();
-  //   });
-  // }, 30000); // Heartbeat check every 30 seconds
-
+  setInterval(() => {
+    for (const ws of wss.clients) {
+      if (!ws.isAlive) return ws.terminate();
+      ws.isAlive = false;
+      ws.ping();
+    }
+  }, 30000);
+  
   return {
     sendNotificationToSpecificUser: (targetUserId, notification) => {
       const userId = targetUserId.toString();

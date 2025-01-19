@@ -350,6 +350,54 @@ paths:
                   message:
                     type: string
                     example: An unexpected error occurred.
+  
+  /api/v1/users/coverImage:
+    patch:
+      summary: Add or update user's cover image
+      description: Allows a user to upload or update their cover image. The new image will replace any existing cover photo.
+      tags:
+        - Users
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                coverPhoto:
+                  type: string
+                  format: binary
+                  description: The new cover photo to be uploaded.
+      responses:
+        '200':
+          description: Cover image handled successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 200
+                  data:
+                    type: object
+                  message:
+                    type: string
+                    example: Cover image handled successfully.
+        '400':
+          description: Bad Request - Cover file missing or user update failed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '404':
+          description: Not Found - User not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
 
   # /api/v1/users/login/phone:
   #   post:
@@ -1179,6 +1227,57 @@ paths:
           description: No accepted pandits found
         401:
           description: Unauthorized - user not authenticated
+
+  /api/v1/booking/notifications/reject/{notificationId}:
+    put:
+      summary: Reject a booking notification
+      description: Allows a pandit to reject a booking notification by updating its status to "Rejected".
+      tags:
+        - Notification
+      parameters:
+        - name: notificationId
+          in: path
+          required: true
+          description: The ID of the notification to reject.
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Notification successfully rejected.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 200
+                  data:
+                    type: object
+                    properties:
+                      _id:
+                        type: string
+                      status:
+                        type: string
+                        example: Rejected
+                  message:
+                    type: string
+                    example: Booking Notification rejected.
+        "400":
+          description: Bad Request - The notification has already been accepted or declined.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "404":
+          description: Not Found - Notification, booking, or user not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+      requestBody:
+        description: No body is required as the action is performed based on the notification ID in the path.
+        required: false
 
   /api/v1/booking/bookings/choose-pandit:
     post:

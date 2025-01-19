@@ -464,9 +464,57 @@ export const handleProfileImage = asyncHandler(async (req, res) => {
     { new: true }
   ).select("-password");
 
+  if (!updatedUser) {
+    throw new ApiError(400, "User Image update failed.");
+  }
+
   return res
     .status(200)
     .json(new ApiResponse(200, {}, "Profile image handled successfully."));
+});
+
+export const handleCoverImage = asyncHandler(async (req, res) => {
+  if (!req.file) {
+    throw new ApiError(400, "Cover file is required.");
+  }
+
+  const coverLocalPath = req.file?.path;
+  if (!coverLocalPath) {
+    throw new ApiError(400, "Cover file is required.");
+  }
+
+  const user = await User.findById(req.user?._id).select("coverPhoto");
+  if (!user) {
+    throw new ApiError(404, "User not found.");
+  }
+
+  // If a cover photo already exists, delete it from Cloudinary
+  if (user.coverPhoto) {
+    const publicId = user.coverPhoto.split("/").pop().split(".")[0];
+    await deleteFromCloudinary(publicId);
+  }
+
+  // Upload the new cover photo
+  const coverImage = await uploadOnCloudinary(coverLocalPath);
+
+  // Update the user's cover photo in the database
+  const updatedUser = await User.findByIdAndUpdate(
+    req.user?._id,
+    {
+      $set: {
+        coverPhoto: coverImage.url,
+      },
+    },
+    { new: true }
+  ).select("-password");
+
+  if (!updatedUser) {
+    throw new ApiError(400, "User update failed.");
+  }
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, {}, "Cover image handled successfully."));
 });
 
 export const googleLogin = asyncHandler(async (req, res) => {
