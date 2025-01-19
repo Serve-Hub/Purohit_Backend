@@ -7,7 +7,7 @@ function setupWebSocket(server) {
 
   // Map to store active WebSocket connections
   const clients = new Map();
-  const heartbeat = () => (this.isAlive = true);
+  // const heartbeat = () => (this.isAlive = true);
 
   wss.on("connection", async (ws, req) => {
     const queryObject = url.parse(req.url, true).query;
@@ -29,8 +29,8 @@ function setupWebSocket(server) {
       }
 
       clients.set(userId, ws);
-      ws.isAlive = true;
-      ws.on("pong", heartbeat);
+      // ws.isAlive = true;
+      // ws.on("pong", heartbeat);
       console.log(`User connected: ${userId}`);
       // console.log(clients.get(userId));
 
@@ -49,13 +49,13 @@ function setupWebSocket(server) {
     }
   });
 
-  setInterval(() => {
-    for (const ws of wss.clients) {
-      if (!ws.isAlive) return ws.terminate();
-      ws.isAlive = false;
-      ws.ping();
-    }
-  }, 30000);
+  // setInterval(() => {
+  //   for (const ws of wss.clients) {
+  //     if (!ws.isAlive) return ws.terminate();
+  //     ws.isAlive = false;
+  //     ws.ping();
+  //   }
+  // }, 30000);
   
   return {
     sendNotificationToSpecificUser: (targetUserId, notification) => {
