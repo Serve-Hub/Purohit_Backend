@@ -48,11 +48,6 @@ const sendNotificationToPandits = async (
       notificationData
     );
 
-    // Add pujaInfo, bookingInfo, and userInfo to the notification
-    console.log("savedNotification", savedNotification);
-    console.log("pujaInfo", pujaInfo);
-    console.log("bookingInfo", bookingInfo);
-
     const finalNotification = {
       ...savedNotification.toObject(), // Use toObject to convert the Mongoose document to plain object
       pujaInfo,
@@ -64,7 +59,6 @@ const sendNotificationToPandits = async (
     });
 
     // Now, you can proceed with the logic to send the notification, whether through WebSocket, email, etc.
-    console.log("Final notification prepared:", finalNotificationArray);
 
     // Step 2: Send the notification to the specific user via WebSocket
     wss.sendNotificationToSpecificUser(targetUserId, finalNotificationArray);
