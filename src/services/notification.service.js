@@ -36,7 +36,7 @@ const sendNotificationToSpecificUser = async (
       return { [key]: finalNotification[key] };
     });
     // Step 2: Send the notification to the specific user via WebSocket
-    wss.sendNotificationToSpecificUser(targetUserId, savedNotification);
+    wss.sendNotificationToSpecificUser(targetUserId, finalNotificationArray);
   } catch (error) {
     console.error(
       `Error sending notification to user ${targetUserId}:`,
