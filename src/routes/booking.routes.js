@@ -8,6 +8,7 @@ import {
   choosePanditForPuja,
   markAllAsRead,
   rejectBookingNotification,
+  viewUserBooking,
 } from "../controllers/booking.controller.js";
 
 const router = Router();
@@ -42,5 +43,8 @@ router.post("/bookings/choose-pandit", choosePanditForPuja);
 
 // Reject a booking request (notification)
 router.put("/notifications/reject/:notificationId", rejectBookingNotification);
+
+// View bookings for a user
+router.get("/bookings/viewBooking", viewUserBooking);
 
 export default router;

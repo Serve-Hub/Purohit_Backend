@@ -311,13 +311,19 @@ const getAcceptedPandits = asyncHandler(async (req, res) => {
 });
 
 const choosePanditForPuja = asyncHandler(async (req, res) => {
-  const { bookingId, panditId } = req.body;
+  const { notificationId } = req.params;
 
-  const booking = await Booking.findById(bookingId);
+  const notification = await Notification.findById(notificationId);
+  if (!notification) throw new ApiError(404, "Notification not found.");
+
+  const booking = await Booking.findById(notification.relatedId);
   if (!booking) throw new ApiError(404, "Booking not found.");
 
-  if (booking.userID.toString() !== req.user._id.toString())
-    throw new ApiError(403, "Unauthorized access.");
+  const panditId = notification.senderID;
+  if (!panditId) throw new ApiError(404, "Pandit not found.");
+
+  const userId = notification.receiverID;
+  if (!userId) throw new ApiError(404, "User not found.");
 
   // Ensure the pandit is among the accepted ones
   const acceptedNotifications = await Notification.find({
@@ -356,11 +362,36 @@ const choosePanditForPuja = asyncHandler(async (req, res) => {
     relatedModel: "Booking",
   };
 
-  await sendNotificationToSpecificUser(panditId, notificationData);
+  await sendNotificationToSpecificUser(
+    panditId,
+    notificationData,
+    booking,
+    req.user
+  );
 
   return res
     .status(200)
     .json(new ApiResponse(200, booking, "Pandit selected successfully."));
+});
+
+const viewUserBooking = asyncHandler(async (req, res) => {
+  const userId = req.user._id;
+
+  // Validate user existence
+  if (!userId) {
+    throw new ApiError(401, "Unauthorized. User not found.");
+  }
+
+  // Fetch bookings with puja details
+  const bookings = await Booking.find({ userID: userId })
+    .populate("pujaID") // Populate puja details with specific fields
+    .sort({ createdAt: -1 }) // Sort bookings by creation date (latest first)
+    .lean(); // Use lean for better performance with plain JavaScript objects
+
+  // Response with optimized payload
+  return res
+    .status(200)
+    .json(new ApiResponse(200, bookings, "Bookings retrieved successfully."));
 });
 
 export {
@@ -371,4 +402,5 @@ export {
   getAcceptedPandits,
   choosePanditForPuja,
   markAllAsRead,
+  viewUserBooking,
 };
