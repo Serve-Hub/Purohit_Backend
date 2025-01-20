@@ -161,13 +161,13 @@ const viewNotification = asyncHandler(async (req, res) => {
           const booking = await Booking.findById(notifObj.relatedId).lean();
           notifObj.bookingDetails = booking || null;
           if (booking) {
-            const pujaDetail = await Puja.findById(booking.pujaID)
-              .select("-password -refreshToken")
-              .lean();
+            const pujaDetail = await Puja.findById(booking.pujaID).lean();
             notifObj.pujaDetails = pujaDetail || null;
           }
         }
-        const senderUser = await User.findById(notifObj.senderID).lean();
+        const senderUser = await User.findById(notifObj.senderID)
+          .select("-password -refreshToken")
+          .lean();
         notifObj.senderDetails = senderUser || null;
       } catch (error) {
         console.error("Error fetching notification:", error);
@@ -215,6 +215,9 @@ const acceptBookingNotification = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Booking not found.");
   }
 
+  const senderInfo = await User.findById(notification.senderID);
+  if (!senderInfo) throw new ApiError(404, "Sender not found.");
+
   const user = await User.findById(booking.userID);
   if (!user) throw new ApiError(404, "User not found.");
 
@@ -228,7 +231,12 @@ const acceptBookingNotification = asyncHandler(async (req, res) => {
     relatedModel: "Booking",
   };
 
-  await sendNotificationToSpecificUser(user._id, notificationData);
+  await sendNotificationToSpecificUser(
+    user._id,
+    notificationData,
+    booking,
+    senderInfo
+  );
 
   return res
     .status(200)
