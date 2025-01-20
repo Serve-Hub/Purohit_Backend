@@ -350,7 +350,7 @@ paths:
                   message:
                     type: string
                     example: An unexpected error occurred.
-  
+
   /api/v1/users/coverImage:
     patch:
       summary: Add or update user's cover image
@@ -371,7 +371,7 @@ paths:
                   format: binary
                   description: The new cover photo to be uploaded.
       responses:
-        '200':
+        "200":
           description: Cover image handled successfully.
           content:
             application/json:
@@ -386,18 +386,18 @@ paths:
                   message:
                     type: string
                     example: Cover image handled successfully.
-        '400':
+        "400":
           description: Bad Request - Cover file missing or user update failed.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiError'
-        '404':
+                $ref: "#/components/schemas/ApiError"
+        "404":
           description: Not Found - User not found.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiError'
+                $ref: "#/components/schemas/ApiError"
 
   # /api/v1/users/login/phone:
   #   post:
@@ -1117,6 +1117,87 @@ paths:
         404:
           description: Puja or pandits not found.
 
+  /api/v1/booking/bookings/viewBooking:
+    get:
+      summary: Retrieve user bookings
+      description: Fetch all bookings for the authenticated user, including puja details.
+      operationId: viewUserBooking
+      tags:
+        - Booking
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Successfully retrieved user bookings
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 200
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        _id:
+                          type: string
+                          example: "60b90c5b5d3a2c00145c8bd1"
+                        userID:
+                          type: string
+                          example: "60b90c5b5d3a2c00145c8bd0"
+                        pujaID:
+                          type: object
+                          properties:
+                            _id:
+                              type: string
+                              example: "60b90c5b5d3a2c00145c8bcf"
+                            name:
+                              type: string
+                              example: "Ganesh Puja"
+                            price:
+                              type: number
+                              example: 2500
+                        createdAt:
+                          type: string
+                          format: date-time
+                          example: "2023-01-20T10:00:00Z"
+                        updatedAt:
+                          type: string
+                          format: date-time
+                          example: "2023-01-20T12:00:00Z"
+                  message:
+                    type: string
+                    example: "Bookings retrieved successfully."
+        "401":
+          description: Unauthorized user or invalid token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 401
+                  message:
+                    type: string
+                    example: "Unauthorized. User not found."
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 500
+                  message:
+                    type: string
+                    example: "Internal server error."
+
   /api/v1/booking/notifications:
     get:
       summary: View notifications with pagination
@@ -1331,6 +1412,7 @@ paths:
           in: query
           schema:
             type: integer
+
 security:
   - bearerAuth: []
 components:
