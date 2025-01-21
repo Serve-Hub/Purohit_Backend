@@ -399,6 +399,95 @@ paths:
               schema:
                 $ref: "#/components/schemas/ApiError"
 
+  /api/v1/users//updateAccountDetails:
+    patch:
+      summary: Update user account details
+      description: Allows authenticated users to update their first name, last name, and bio.
+      tags:
+        - Account Management
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                firstName:
+                  type: string
+                  example: John
+                  description: Updated first name of the user
+                lastName:
+                  type: string
+                  example: Doe
+                  description: Updated last name of the user
+                bio:
+                  type: string
+                  example: Software developer passionate about AI and climate tech.
+                  description: A brief bio of the user
+              required:
+                - firstName
+                - lastName
+      responses:
+        "200":
+          description: Account details updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+        "400":
+          description: Bad request, invalid or missing input fields
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+  /api/v1/users//updatePassword:
+    patch:
+      summary: Update user password
+      description: Allows authenticated users to update their password by providing the old password.
+      tags:
+        - Account Management
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                oldPassword:
+                  type: string
+                  example: old_password123
+                  description: The current password of the user
+                newPassword:
+                  type: string
+                  example: new_secure_password
+                  description: The new password to set for the account
+                confirmPassword:
+                  type: string
+                  example: new_secure_password
+                  description: Confirm the new password to ensure they match
+              required:
+                - oldPassword
+                - newPassword
+                - confirmPassword
+      responses:
+        "200":
+          description: Password updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+        "400":
+          description: Bad request, validation failed (e.g., passwords do not match)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
   # /api/v1/users/login/phone:
   #   post:
   #     tags:

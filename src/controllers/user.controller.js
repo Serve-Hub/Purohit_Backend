@@ -301,25 +301,6 @@ export const mobileResetPassword = asyncHandler(async (req, res) => {
   res.status(200).json(new ApiResponse(200, {}, "Password reset successful."));
 });
 
-export const changeCurrentPassword = asyncHandler(async (req, res) => {
-  const { oldPassword, newPassword, confirmPassword } = req.body;
-
-  if (!newPassword == confirmPassword) {
-    throw new ApiError(400, "Password match failed");
-  }
-
-  const user = await User.findById(req.user?._id);
-  const isPasswordCorrect = await user.isPasswordCorrect(oldPassword);
-  if (!isPasswordCorrect) {
-    throw new ApiError(400, "Invalid old password");
-  }
-  user.password = newPassword;
-  await user.save({ validateBeforeSave: false });
-
-  return res
-    .status(200)
-    .json(new ApiResponse(200, {}, "Password changed successfully"));
-});
 
 export const refreshAccessToken = asyncHandler(async (req, res) => {
   const incomingRefreshToken =
@@ -381,7 +362,7 @@ export const getCurrentUser = asyncHandler(async (req, res) => {
 });
 
 export const updateAccountDetails = asyncHandler(async (req, res) => {
-  const { firstName, lastName, contact } = req.body;
+  const { firstName, lastName, bio } = req.body;
 
   if (!firstName || !lastName) {
     throw new ApiError(400, "All fields are required");
@@ -392,7 +373,7 @@ export const updateAccountDetails = asyncHandler(async (req, res) => {
       $set: {
         firstName,
         lastName,
-        contact,
+        bio,
       },
     },
     { new: true }
