@@ -9,6 +9,7 @@ import {
   markAllAsRead,
   rejectBookingNotification,
   viewUserBooking,
+  viewPanditBooking,
 } from "../controllers/booking.controller.js";
 
 const router = Router();
@@ -46,5 +47,8 @@ router.put("/notifications/reject/:notificationId", rejectBookingNotification);
 
 // View bookings for a user
 router.get("/bookings/viewBooking", viewUserBooking);
+
+// View bookings
+router.get("/bookings/viewPanditBooking", viewPanditBooking);
 
 export default router;

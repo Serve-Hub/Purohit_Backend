@@ -394,6 +394,26 @@ const viewUserBooking = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, bookings, "Bookings retrieved successfully."));
 });
 
+const viewPanditBooking = asyncHandler(async (req, res) => {
+  const panditId = req.user._id; // Assuming logged-in pandit's ID is stored in req.user
+
+  // Validate pandit existence
+  if (!panditId) {
+    throw new ApiError(401, "Unauthorized. User not found.");
+  }
+
+  // Fetch bookings where the pandit is in the selectedPandit array
+  const bookings = await Booking.find({ selectedPandit: { $in: [panditId] } }) // Check if panditId exists in the selectedPandit array
+    .populate("pujaID") // Populate puja details
+    .sort({ createdAt: -1 }) // Sort by creation time
+    .lean(); // Return plain JavaScript objects
+
+  // Respond with the bookings
+  return res
+    .status(200)
+    .json(new ApiResponse(200, bookings, "Bookings retrieved successfully."));
+});
+
 export {
   createBooking,
   viewNotification,
@@ -403,4 +423,5 @@ export {
   choosePanditForPuja,
   markAllAsRead,
   viewUserBooking,
+  viewPanditBooking,
 };
