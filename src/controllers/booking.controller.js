@@ -107,19 +107,14 @@ const markAllAsRead = asyncHandler(async (req, res, next) => {
 
   // Find all unread notifications for the user and mark them as read
   const result = await Notification.updateMany(
-    { userID: userId, isRead: false },
-    { isRead: true }
+    { receiverID: userId, isRead: false }, // Only unread notifications for the user
+    { $set: { isRead: true } } // Mark them as read
   );
-
-  if (result.modifiedCount === 0) {
-    return res.status(404).json({ message: "No unread notifications found" });
-  }
-
-  // Send a success response
-  return res.status(200).json({
-    message: "All notifications marked as read successfully",
-    result,
-  });
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(200, { result }, "All notifications marked as read.")
+    );
 });
 
 const viewNotification = asyncHandler(async (req, res) => {
