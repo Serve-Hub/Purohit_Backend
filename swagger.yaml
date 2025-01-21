@@ -1119,16 +1119,31 @@ paths:
 
   /api/v1/booking/bookings/viewBooking:
     get:
-      summary: Retrieve user bookings
-      description: Fetch all bookings for the authenticated user, including puja details.
+      summary: Retrieve user bookings with pagination
+      description: Fetch paginated bookings for the authenticated user, including puja details.
       operationId: viewUserBooking
       tags:
         - Booking
       security:
         - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          description: Page number for pagination (default is 1)
+          required: false
+          schema:
+            type: integer
+            example: 1
+        - name: limit
+          in: query
+          description: Number of records per page (default is 10)
+          required: false
+          schema:
+            type: integer
+            example: 10
       responses:
         "200":
-          description: Successfully retrieved user bookings
+          description: Successfully retrieved paginated user bookings
           content:
             application/json:
               schema:
@@ -1138,36 +1153,48 @@ paths:
                     type: integer
                     example: 200
                   data:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        _id:
-                          type: string
-                          example: "60b90c5b5d3a2c00145c8bd1"
-                        userID:
-                          type: string
-                          example: "60b90c5b5d3a2c00145c8bd0"
-                        pujaID:
+                    type: object
+                    properties:
+                      bookings:
+                        type: array
+                        items:
                           type: object
                           properties:
                             _id:
                               type: string
-                              example: "60b90c5b5d3a2c00145c8bcf"
-                            name:
+                              example: "60b90c5b5d3a2c00145c8bd1"
+                            userID:
                               type: string
-                              example: "Ganesh Puja"
-                            price:
-                              type: number
-                              example: 2500
-                        createdAt:
-                          type: string
-                          format: date-time
-                          example: "2023-01-20T10:00:00Z"
-                        updatedAt:
-                          type: string
-                          format: date-time
-                          example: "2023-01-20T12:00:00Z"
+                              example: "60b90c5b5d3a2c00145c8bd0"
+                            pujaID:
+                              type: object
+                              properties:
+                                _id:
+                                  type: string
+                                  example: "60b90c5b5d3a2c00145c8bcf"
+                                name:
+                                  type: string
+                                  example: "Ganesh Puja"
+                                price:
+                                  type: number
+                                  example: 2500
+                            createdAt:
+                              type: string
+                              format: date-time
+                              example: "2023-01-20T10:00:00Z"
+                            updatedAt:
+                              type: string
+                              format: date-time
+                              example: "2023-01-20T12:00:00Z"
+                      currentPage:
+                        type: integer
+                        example: 1
+                      totalPages:
+                        type: integer
+                        example: 5
+                      totalBookings:
+                        type: integer
+                        example: 50
                   message:
                     type: string
                     example: "Bookings retrieved successfully."
@@ -1200,16 +1227,31 @@ paths:
 
   /api/v1/booking/bookings/viewPanditBooking:
     get:
-      summary: Retrieve pandit bookings
-      description: Fetch all bookings for the authenticated user, including puja details.
+      summary: Retrieve pandit bookings with pagination
+      description: Fetch paginated bookings for the authenticated pandit, including puja details.
       operationId: viewPanditBooking
       tags:
         - Booking
       security:
         - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          description: Page number for pagination (default is 1)
+          required: false
+          schema:
+            type: integer
+            example: 1
+        - name: limit
+          in: query
+          description: Number of records per page (default is 10)
+          required: false
+          schema:
+            type: integer
+            example: 10
       responses:
         "200":
-          description: Successfully retrieved pandit bookings
+          description: Successfully retrieved paginated pandit bookings
           content:
             application/json:
               schema:
@@ -1219,36 +1261,48 @@ paths:
                     type: integer
                     example: 200
                   data:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        _id:
-                          type: string
-                          example: "60b90c5b5d3a2c00145c8bd1"
-                        userID:
-                          type: string
-                          example: "60b90c5b5d3a2c00145c8bd0"
-                        pujaID:
+                    type: object
+                    properties:
+                      bookings:
+                        type: array
+                        items:
                           type: object
                           properties:
                             _id:
                               type: string
-                              example: "60b90c5b5d3a2c00145c8bcf"
-                            name:
+                              example: "60b90c5b5d3a2c00145c8bd1"
+                            userID:
                               type: string
-                              example: "Ganesh Puja"
-                            price:
-                              type: number
-                              example: 2500
-                        createdAt:
-                          type: string
-                          format: date-time
-                          example: "2023-01-20T10:00:00Z"
-                        updatedAt:
-                          type: string
-                          format: date-time
-                          example: "2023-01-20T12:00:00Z"
+                              example: "60b90c5b5d3a2c00145c8bd0"
+                            pujaID:
+                              type: object
+                              properties:
+                                _id:
+                                  type: string
+                                  example: "60b90c5b5d3a2c00145c8bcf"
+                                name:
+                                  type: string
+                                  example: "Ganesh Puja"
+                                price:
+                                  type: number
+                                  example: 2500
+                            createdAt:
+                              type: string
+                              format: date-time
+                              example: "2023-01-20T10:00:00Z"
+                            updatedAt:
+                              type: string
+                              format: date-time
+                              example: "2023-01-20T12:00:00Z"
+                      currentPage:
+                        type: integer
+                        example: 1
+                      totalPages:
+                        type: integer
+                        example: 5
+                      totalBookings:
+                        type: integer
+                        example: 50
                   message:
                     type: string
                     example: "Bookings retrieved successfully."

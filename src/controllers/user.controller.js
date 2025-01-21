@@ -470,7 +470,13 @@ export const handleProfileImage = asyncHandler(async (req, res) => {
 
   return res
     .status(200)
-    .json(new ApiResponse(200, {}, "Profile image handled successfully."));
+    .json(
+      new ApiResponse(
+        200,
+        { updatedUser },
+        "Profile image handled successfully."
+      )
+    );
 });
 
 export const handleCoverImage = asyncHandler(async (req, res) => {
@@ -514,10 +520,12 @@ export const handleCoverImage = asyncHandler(async (req, res) => {
 
   return res
     .status(200)
-    .json(new ApiResponse(200, {}, "Cover image handled successfully."));
+    .json(
+      new ApiResponse(200, { updatedUser }, "Cover image handled successfully.")
+    );
 });
 
-export const googleLogin = asyncHandler(async (req, res) => {
+export const googleLogin = asyncHandler(async (req, res, next) => {
   const user = req.user; // This is set by Passport during Google OAuth
 
   if (!user) {
@@ -525,34 +533,35 @@ export const googleLogin = asyncHandler(async (req, res) => {
   }
 
   try {
-    const { access, refresh } = await generateAccessAndRefreshTokens(user);
+    const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(
+      user._id
+    );
+    console.log("token is here", accessToken);
+    const options = {
+      httpOnly: true,
+      secure: true,
+    };
 
     res
       .status(200)
-      .cookie("accessToken", access, {
-        httpOnly: true,
-        secure: true,
-        sameSite: "Strict",
-      })
-      .cookie("refreshToken", refresh, {
-        httpOnly: true,
-        secure: true,
-        sameSite: "Strict",
-      });
+      .cookie("accessToken", accessToken, options)
+      .cookie("refreshToken", refreshToken, options);
 
-    const userInfo = await User.findById(user._id).select(
+    const loggedInUser = await User.findById(user._id).select(
       "-password -refreshToken"
     );
-    res
-      .status(200)
-      .json(
-        new ApiResponse(
-          200,
-          userInfo,
-          "User logged in successfully with Google"
-        )
-      );
+
+    // res
+    //   .status(200)
+    //   .json(
+    //     new ApiResponse(
+    //       200,
+    //       userInfo,
+    //       "User logged in successfully with Google"
+    //     )
+    //   );
+    next();
   } catch (error) {
-    throw new ApiError(500, "Google login failed");
+    throw new ApiError(500, "Google login failed: " + error.message);
   }
 });

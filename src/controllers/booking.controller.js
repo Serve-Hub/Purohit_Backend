@@ -382,16 +382,34 @@ const viewUserBooking = asyncHandler(async (req, res) => {
     throw new ApiError(401, "Unauthorized. User not found.");
   }
 
-  // Fetch bookings with puja details
+  // Pagination setup
+  const page = parseInt(req.query.page) || 1; // Default to page 1
+  const limit = parseInt(req.query.limit) || 10; // Default to 10 bookings per page
+  const skip = (page - 1) * limit;
+
+  // Fetch bookings with pagination
   const bookings = await Booking.find({ userID: userId })
     .populate("pujaID") // Populate puja details with specific fields
     .sort({ createdAt: -1 }) // Sort bookings by creation date (latest first)
+    .skip(skip) // Skip records for pagination
+    .limit(limit) // Limit the number of records per page
     .lean(); // Use lean for better performance with plain JavaScript objects
 
-  // Response with optimized payload
-  return res
-    .status(200)
-    .json(new ApiResponse(200, bookings, "Bookings retrieved successfully."));
+  const totalBookings = await Booking.countDocuments({ userID: userId }); // Count total bookings for pagination metadata
+
+  // Respond with bookings and pagination details
+  return res.status(200).json(
+    new ApiResponse(
+      200,
+      {
+        bookings,
+        currentPage: page,
+        totalPages: Math.ceil(totalBookings / limit),
+        totalBookings,
+      },
+      "Bookings retrieved successfully."
+    )
+  );
 });
 
 const viewPanditBooking = asyncHandler(async (req, res) => {
@@ -402,16 +420,36 @@ const viewPanditBooking = asyncHandler(async (req, res) => {
     throw new ApiError(401, "Unauthorized. User not found.");
   }
 
+  // Pagination setup
+  const page = parseInt(req.query.page) || 1; // Default to page 1
+  const limit = parseInt(req.query.limit) || 10; // Default to 10 bookings per page
+  const skip = (page - 1) * limit;
+
   // Fetch bookings where the pandit is in the selectedPandit array
-  const bookings = await Booking.find({ selectedPandit: { $in: [panditId] } }) // Check if panditId exists in the selectedPandit array
+  const bookings = await Booking.find({ selectedPandit: { $in: [panditId] } })
     .populate("pujaID") // Populate puja details
     .sort({ createdAt: -1 }) // Sort by creation time
+    .skip(skip) // Skip records for pagination
+    .limit(limit) // Limit the number of records per page
     .lean(); // Return plain JavaScript objects
 
-  // Respond with the bookings
-  return res
-    .status(200)
-    .json(new ApiResponse(200, bookings, "Bookings retrieved successfully."));
+  const totalBookings = await Booking.countDocuments({
+    selectedPandit: { $in: [panditId] },
+  }); // Count total bookings
+
+  // Respond with the bookings and pagination details
+  return res.status(200).json(
+    new ApiResponse(
+      200,
+      {
+        bookings,
+        currentPage: page,
+        totalPages: Math.ceil(totalBookings / limit),
+        totalBookings,
+      },
+      "Bookings retrieved successfully."
+    )
+  );
 });
 
 export {

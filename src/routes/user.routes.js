@@ -32,12 +32,23 @@ router
   .route("/auth/google")
   .get(passport.authenticate("google", { scope: ["profile", "email"] }));
 
+// router.route("/auth/google/callback").get(
+//   passport.authenticate("google", {
+//     successRedirect: process.env.CLIENT_URL,
+//     failureRedirect: "/login/failed",
+//   }),
+//   googleLogin
+// );
+
 router.route("/auth/google/callback").get(
   passport.authenticate("google", {
-    successRedirect: process.env.CLIENT_URL,
     failureRedirect: "/login/failed",
   }),
-  googleLogin
+  googleLogin,
+  (req, res) => {
+    console.log("Redirecting to:", process.env.CLIENT_URL);
+    res.redirect(process.env.CLIENT_URL);
+  }
 );
 
 router.route("/login").post(loginUser);

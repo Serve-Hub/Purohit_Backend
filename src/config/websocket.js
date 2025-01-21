@@ -12,6 +12,7 @@ function setupWebSocket(server) {
   wss.on("connection", async (ws, req) => {
     const queryObject = url.parse(req.url, true).query;
     const userId = queryObject.userID;
+    console.log("userId", userId);
     if (!userId) {
       ws.close(4001, "Missing userID in query params.");
       return;
@@ -56,7 +57,6 @@ function setupWebSocket(server) {
   //   }
   // }, 30000);
 
-  
   return {
     sendNotificationToSpecificUser: (targetUserId, notification) => {
       const userId = targetUserId.toString();

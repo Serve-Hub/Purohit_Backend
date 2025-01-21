@@ -21,7 +21,7 @@ const verifyJWT = asyncHandler(async (req, res, next) => {
     if (!token) {
       throw new ApiError(401, "Unauthorized request");
     }
-
+    console.log("token is here", token);
     let decodedToken;
     try {
       decodedToken = verifyToken(token);
