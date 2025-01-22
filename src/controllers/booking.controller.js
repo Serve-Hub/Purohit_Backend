@@ -371,8 +371,134 @@ const choosePanditForPuja = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, {}, "Pandit selected successfully."));
 });
 
+// const viewUserBooking = asyncHandler(async (req, res) => {
+//   const userId = req.user?._id;
+
+//   // Validate user existence
+//   if (!userId) {
+//     throw new ApiError(401, "Unauthorized. User not found.");
+//   }
+
+//   // Pagination setup
+//   const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
+//   const limit = Math.max(parseInt(req.query.limit, 10) || 10, 1);
+//   const skip = (page - 1) * limit;
+
+//   // Fetch bookings with puja and selected pandit details
+//   const [bookings, totalBookings] = await Promise.all([
+//     Booking.find({ userID: userId })
+//       .populate("pujaID") // Populate puja details
+//       .populate({
+//         path: "selectedPandit", // Populate selected pandit details
+//         select: "-password -refreshToken", // Exclude sensitive fields
+//       })
+//       .sort({ createdAt: -1 })
+//       .skip(skip)
+//       .limit(limit)
+//       .lean(),
+//     Booking.countDocuments({ userID: userId }), // Total count for pagination
+//   ]);
+
+//   // Respond with paginated data
+//   return res.status(200).json(
+//     new ApiResponse(
+//       200,
+//       {
+//         bookings,
+//         currentPage: page,
+//         totalPages: Math.ceil(totalBookings / limit),
+//         totalBookings,
+//       },
+//       "Bookings retrieved successfully."
+//     )
+//   );
+// });
+
+// const viewUserBooking = asyncHandler(async (req, res) => {
+//   const userId = req.user?._id;
+
+//   // Validate user existence
+//   if (!userId) {
+//     throw new ApiError(401, "Unauthorized. User not found.");
+//   }
+
+//   // Pagination setup
+//   const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
+//   const limit = Math.max(parseInt(req.query.limit, 10) || 10, 1);
+//   const skip = (page - 1) * limit;
+
+//   // Retrieve bookings with pagination
+//   const [bookings, totalBookings] = await Promise.all([
+//     Booking.find({ userID: userId })
+//       .populate("pujaID") // Populate puja details with specific fields
+//       .sort({ createdAt: -1 }) // Sort bookings by creation date (latest first)
+//       .skip(skip)
+//       .limit(limit)
+//       .lean(),
+//     Booking.countDocuments({ userID: userId }), // Total count for pagination
+//   ]);
+
+//   // Extract all selectedPandit IDs in a single iteration
+//   const uniquePanditIds = [
+//     ...new Set(
+//       bookings
+//         .filter((b) => b.selectedPandit?.length > 0)
+//         .flatMap((b) => b.selectedPandit)
+//     ),
+//   ];
+
+//   // Fetch related panditDetails and kypDetails in parallel
+//   const [panditDetails, panditKypDetails] = await Promise.all([
+//     uniquePanditIds.length
+//       ? User.find({ _id: { $in: uniquePanditIds } })
+//           .select("-password -refreshToken")
+//           .lean()
+//       : [],
+//     uniquePanditIds.length
+//       ? KYP.find({ panditID: { $in: uniquePanditIds } }).lean()
+//       : [],
+//   ]);
+
+//   // Map fetched details for quick lookup
+//   const panditDetailsMap = panditDetails.reduce(
+//     (acc, pandit) => ({ ...acc, [pandit._id.toString()]: pandit }),
+//     {}
+//   );
+
+//   const panditKypDetailsMap = panditKypDetails.reduce(
+//     (acc, kyp) => ({ ...acc, [kyp.panditID.toString()]: kyp }),
+//     {}
+//   );
+
+//   // Enhance bookings with selected pandit details
+//   const enhancedBookings = bookings.map((booking) => {
+//     if (booking.selectedPandit?.length > 0) {
+//       const selectedPandits = booking.selectedPandit.map((id) => ({
+//         panditDetails: panditDetailsMap[id] || null,
+//         kypDetails: panditKypDetailsMap[id] || null,
+//       }));
+//       return { ...booking, selectedPandits };
+//     }
+//     return booking;
+//   });
+
+//   // Respond with paginated data
+//   return res.status(200).json(
+//     new ApiResponse(
+//       200,
+//       {
+//         enhancedBookings,
+//         currentPage: page,
+//         totalPages: Math.ceil(totalBookings / limit),
+//         totalBookings,
+//       },
+//       "Bookings retrieved successfully."
+//     )
+//   );
+// });
+
 const viewUserBooking = asyncHandler(async (req, res) => {
-  const userId = req.user._id;
+  const userId = req.user?._id;
 
   // Validate user existence
   if (!userId) {
@@ -380,80 +506,69 @@ const viewUserBooking = asyncHandler(async (req, res) => {
   }
 
   // Pagination setup
-  const page = parseInt(req.query.page) || 1; // Default to page 1
-  const limit = parseInt(req.query.limit) || 10; // Default to 10 bookings per page
+  const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
+  const limit = Math.max(parseInt(req.query.limit, 10) || 10, 1);
   const skip = (page - 1) * limit;
 
-  // Fetch bookings with pagination
-  // const bookings = await Booking.find({ userID: userId })
-  //   .populate("pujaID") // Populate puja details with specific fields
-  //   .sort({ createdAt: -1 }) // Sort bookings by creation date (latest first)
-  //   .skip(skip) // Skip records for pagination
-  //   .limit(limit) // Limit the number of records per page
-  //   .lean(); // Use lean for better performance with plain JavaScript objects
+  // Retrieve bookings with pagination
+  const [bookings, totalBookings] = await Promise.all([
+    Booking.find({ userID: userId })
+      .populate("pujaID") // Populate puja details with specific fields
+      .sort({ createdAt: -1 }) // Sort bookings by creation date (latest first)
+      .skip(skip)
+      .limit(limit)
+      .lean(),
+    Booking.countDocuments({ userID: userId }), // Total count for pagination
+  ]);
 
-  // const enhancedBookings = await Promise.all(
-  //   bookings.map(async (booking) => {
-  //     if (booking.selectedPandit && booking.selectedPandit.length > 0) {
-  //       const selectedID = booking.selectedPandit;
-  //       const panditDetails = await User.findById(selectedID)
-  //         .select("-password -refreshToken")
-  //         .lean(); // Assuming Pandit is another model
-  //       return { ...booking, panditDetails };
-  //     }
-  //     return booking;
-  //   })
-  // );
+  // Extract all selectedPandit IDs in a single iteration and convert to strings
+  const uniquePanditIds = [
+    ...new Set(
+      bookings
+        .filter((b) => b.selectedPandit?.length > 0)
+        .flatMap((b) => b.selectedPandit)
+        .map((id) => id.toString()) // Ensure IDs are strings
+    ),
+  ];
 
-  const bookings = await Booking.find({ userID: userId })
-    .populate("pujaID") // Populate puja details with specific fields
-    .sort({ createdAt: -1 }) // Sort bookings by creation date (latest first)
-    .skip(skip) // Skip records for pagination
-    .limit(limit) // Limit the number of records per page
-    .lean(); // Use lean for better performance with plain JavaScript objects
+  // Fetch pandit KYP details and populate user details
+  const panditKypDetails = uniquePanditIds.length
+    ? await KYP.find({ panditID: { $in: uniquePanditIds } })
+        .populate({
+          path: "panditID", // Populate user details from userID reference
+          select: "-password -refreshToken", // Exclude sensitive fields
+        })
+        .lean()
+    : [];
 
-  // Collect all selectedPandit IDs from bookings
-  const allSelectedPanditIds = bookings
-    .filter(
-      (booking) => booking.selectedPandit && booking.selectedPandit.length > 0
-    )
-    .map((booking) => booking.selectedPandit);
+  // console.log("Pandit KYP Details ", panditKypDetails); // Check the final map after reduction
+  const panditDetailsMap = panditKypDetails.reduce((acc, kyp) => {
+    acc[kyp.panditID._id.toString()] = kyp; // Store KYP details in a map using panditID
+    return acc;
+  }, {});
 
-  // Flatten the array if needed and ensure unique IDs
-  const uniquePanditIds = [...new Set(allSelectedPanditIds.flat())];
-
-  // Fetch all relevant pandit details in a single query
-  const panditDetailsMap = {};
-  if (uniquePanditIds.length > 0) {
-    const panditDetails = await User.find({ _id: { $in: uniquePanditIds } })
-      .select("-password -refreshToken")
-      .lean();
-
-    // Create a map of panditId -> panditDetails for quick lookup
-    panditDetails.forEach((pandit) => {
-      panditDetailsMap[pandit._id.toString()] = pandit;
+  // Combine bookings and panditKypDetails into a new structure
+  const bookingsWithPanditDetails = bookings.map((booking) => {
+    const selectedPanditWithKYP = booking.selectedPandit.map((panditId) => {
+      const panditKYP = panditDetailsMap[panditId.toString()] || null; // Get KYP details from map
+      return {
+        panditID: panditId,
+        panditKYP, // Add KYP details to the pandit info
+      };
     });
-  }
 
-  // Enhance bookings by attaching relevant panditDetails
-  const enhancedBookings = bookings.map((booking) => {
-    if (booking.selectedPandit && booking.selectedPandit.length > 0) {
-      const selectedPandits = booking.selectedPandit.map(
-        (id) => panditDetailsMap[id] || null
-      );
-      return { ...booking, panditDetails: selectedPandits };
-    }
-    return booking;
+    return {
+      ...booking,
+      selectedPanditWithKYP, // Attach the enhanced selected pandits with KYP details
+    };
   });
 
-  const totalBookings = await Booking.countDocuments({ userID: userId }); // Count total bookings for pagination metadata
-
-  // Respond with bookings and pagination details
+  // Respond with paginated data
   return res.status(200).json(
     new ApiResponse(
       200,
       {
-        enhancedBookings,
+        bookingsWithPanditDetails,
         currentPage: page,
         totalPages: Math.ceil(totalBookings / limit),
         totalBookings,
