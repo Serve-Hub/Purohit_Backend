@@ -9,8 +9,8 @@ passport.use(
       clientID: process.env.OAUTH_CLIENT_ID,
       clientSecret: process.env.OAUTH_CLIENT_SECRET,
       callbackURL:
-        // "http://purohit-backend.onrender.com/api/v1/users/auth/google/callback",
-        "http://localhost:3000/api/v1/users/auth/google/callback",
+        "http://purohit-backend.onrender.com/api/v1/users/auth/google/callback",
+        // "http://localhost:3000/api/v1/users/auth/google/callback",
       passReqToCallback: true,
     },
     async (req, accessToken, refreshToken, profile, done) => {
@@ -25,10 +25,6 @@ passport.use(
                 : user.email;
             user.firstName = profile.name.givenName || user.firstName;
             user.lastName = profile.name.familyName || user.lastName;
-            user.avatar =
-              profile.photos && profile.photos.length > 0
-                ? profile.photos[0].value
-                : user.avatar;
             // Save updated user information if changes were made
             await user.save();
           } else {
@@ -47,10 +43,6 @@ passport.use(
             firstName: profile.name.givenName,
             lastName: profile.name.familyName,
             isVerified: true,
-            avatar:
-              profile.photos && profile.photos.length > 0
-                ? profile.photos[0].value
-                : null,
           });
         }
         return done(null, user);

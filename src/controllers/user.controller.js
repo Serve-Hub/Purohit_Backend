@@ -427,7 +427,7 @@ export const handleProfileImage = asyncHandler(async (req, res) => {
   // If an avatar already exists, delete it from Cloudinary
   if (user.avatar) {
     const publicId = user.avatar.split("/").pop().split(".")[0];
-    await deleteFromCloudinary(publicId);
+    await deleteFromCloudinary(publicId); // Delete from Cloudinary
   }
 
   // Upload the new avatar
