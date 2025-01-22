@@ -311,7 +311,8 @@ const getAcceptedPandits = asyncHandler(async (req, res) => {
 
 const choosePanditForPuja = asyncHandler(async (req, res) => {
   const { bookingId, panditId } = req.body;
-
+  console.log("bookingID=", bookingId);
+  console.log("paditId=", panditId);
   const booking = await Booking.findById(bookingId);
   if (!booking) throw new ApiError(404, "Booking not found.");
 
