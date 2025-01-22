@@ -242,7 +242,7 @@ const rejectBookingNotification = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Notification already accepted or declined.");
   }
 
-  notification.status = "Rejected";
+  notification.status = "Declined";
   await notification.save();
 
   // Find the related booking
