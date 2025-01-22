@@ -1154,409 +1154,330 @@ paths:
   /api/v1/booking/bookings/{pujaId}:
     post:
       summary: Create a new booking
-      tags:
-        - Booking
-      security:
-        - BearerAuth: []
-      description: Create a new booking for a puja.
+      description: Creates a booking for a specific puja.
       parameters:
         - name: pujaId
           in: path
           required: true
-          description: ID of the puja to book
           schema:
             type: string
+          description: The ID of the puja to book.
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
+              required:
+                - date
+                - time
+                - province
+                - district
+                - municipality
+                - tollAddress
               properties:
                 date:
                   type: string
                   format: date
-                  description: Date of the puja.
+                  example: "2025-01-22"
                 time:
                   type: string
-                  description: Time of the puja.
+                  example: "10:00 AM"
                 province:
                   type: string
-                  description: Province of the puja location.
+                  example: "Province 1"
                 district:
                   type: string
-                  description: District of the puja location.
+                  example: "Sunsari"
                 municipality:
                   type: string
-                  description: Municipality of the puja location.
+                  example: "Dharan"
                 tollAddress:
                   type: string
-                  description: Address of the puja location.
-                amount:
-                  type: number
-                  format: double
-                  description: Amount for the puja.
+                  example: "Near Bhanuchowk"
       responses:
-        201:
-          description: Booking successfully created.
-        400:
-          description: Missing required fields or puja already booked.
-        401:
-          description: Unauthorized user.
-        404:
-          description: Puja or pandits not found.
+        "201":
+          description: Booking successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  statusCode:
+                    type: integer
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      _id:
+                        type: string
+                      userID:
+                        type: string
+                      pujaID:
+                        type: string
+                      date:
+                        type: string
+                        format: date
+                      time:
+                        type: string
+                      location:
+                        type: object
+                        properties:
+                          province:
+                            type: string
+                          district:
+                            type: string
+                          municipality:
+                            type: string
+                          tollAddress:
+                            type: string
+        "400":
+          description: Missing required fields or booking already exists
+        "401":
+          description: Unauthorized user
+        "404":
+          description: Puja or pandits not found
+        "500":
+          description: Failed to send notifications
 
   /api/v1/booking/bookings/viewBooking:
     get:
-      summary: Retrieve user bookings with pagination
-      description: Fetch paginated bookings for the authenticated user, including puja details.
-      operationId: viewUserBooking
-      tags:
-        - Booking
-      security:
-        - bearerAuth: []
+      summary: View user bookings
+      description: Retrieves a list of bookings for the authenticated user with pagination.
       parameters:
         - name: page
           in: query
-          description: Page number for pagination (default is 1)
           required: false
           schema:
             type: integer
-            example: 1
-        - name: limit
-          in: query
-          description: Number of records per page (default is 10)
-          required: false
-          schema:
-            type: integer
-            example: 10
-      responses:
-        "200":
-          description: Successfully retrieved paginated user bookings
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: integer
-                    example: 200
-                  data:
-                    type: object
-                    properties:
-                      bookings:
-                        type: array
-                        items:
-                          type: object
-                          properties:
-                            _id:
-                              type: string
-                              example: "60b90c5b5d3a2c00145c8bd1"
-                            userID:
-                              type: string
-                              example: "60b90c5b5d3a2c00145c8bd0"
-                            pujaID:
-                              type: object
-                              properties:
-                                _id:
-                                  type: string
-                                  example: "60b90c5b5d3a2c00145c8bcf"
-                                name:
-                                  type: string
-                                  example: "Ganesh Puja"
-                                price:
-                                  type: number
-                                  example: 2500
-                            createdAt:
-                              type: string
-                              format: date-time
-                              example: "2023-01-20T10:00:00Z"
-                            updatedAt:
-                              type: string
-                              format: date-time
-                              example: "2023-01-20T12:00:00Z"
-                      currentPage:
-                        type: integer
-                        example: 1
-                      totalPages:
-                        type: integer
-                        example: 5
-                      totalBookings:
-                        type: integer
-                        example: 50
-                  message:
-                    type: string
-                    example: "Bookings retrieved successfully."
-        "401":
-          description: Unauthorized user or invalid token
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: integer
-                    example: 401
-                  message:
-                    type: string
-                    example: "Unauthorized. User not found."
-        "500":
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: integer
-                    example: 500
-                  message:
-                    type: string
-                    example: "Internal server error."
-
-  /api/v1/booking/bookings/viewPanditBooking:
-    get:
-      summary: Retrieve pandit bookings with pagination
-      description: Fetch paginated bookings for the authenticated pandit, including puja details.
-      operationId: viewPanditBooking
-      tags:
-        - Booking
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: page
-          in: query
-          description: Page number for pagination (default is 1)
-          required: false
-          schema:
-            type: integer
-            example: 1
-        - name: limit
-          in: query
-          description: Number of records per page (default is 10)
-          required: false
-          schema:
-            type: integer
-            example: 10
-      responses:
-        "200":
-          description: Successfully retrieved paginated pandit bookings
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: integer
-                    example: 200
-                  data:
-                    type: object
-                    properties:
-                      bookings:
-                        type: array
-                        items:
-                          type: object
-                          properties:
-                            _id:
-                              type: string
-                              example: "60b90c5b5d3a2c00145c8bd1"
-                            userID:
-                              type: string
-                              example: "60b90c5b5d3a2c00145c8bd0"
-                            pujaID:
-                              type: object
-                              properties:
-                                _id:
-                                  type: string
-                                  example: "60b90c5b5d3a2c00145c8bcf"
-                                name:
-                                  type: string
-                                  example: "Ganesh Puja"
-                                price:
-                                  type: number
-                                  example: 2500
-                            createdAt:
-                              type: string
-                              format: date-time
-                              example: "2023-01-20T10:00:00Z"
-                            updatedAt:
-                              type: string
-                              format: date-time
-                              example: "2023-01-20T12:00:00Z"
-                      currentPage:
-                        type: integer
-                        example: 1
-                      totalPages:
-                        type: integer
-                        example: 5
-                      totalBookings:
-                        type: integer
-                        example: 50
-                  message:
-                    type: string
-                    example: "Bookings retrieved successfully."
-        "401":
-          description: Unauthorized user or invalid token
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: integer
-                    example: 401
-                  message:
-                    type: string
-                    example: "Unauthorized. User not found."
-        "500":
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: integer
-                    example: 500
-                  message:
-                    type: string
-                    example: "Internal server error."
-
-  /api/v1/booking/notifications:
-    get:
-      summary: View notifications with pagination
-      tags:
-        - Notification
-      security:
-        - BearerAuth: []
-      parameters:
-        - name: page
-          in: query
-          schema:
-            type: integer
+            default: 1
           description: Page number for pagination.
         - name: limit
           in: query
+          required: false
           schema:
             type: integer
-          description: Number of notifications per page.
+            default: 10
+          description: Number of bookings per page.
       responses:
-        200:
+        "200":
+          description: Bookings retrieved successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  statusCode:
+                    type: integer
+                    example: 200
+                  message:
+                    type: string
+                    example: Bookings retrieved successfully.
+                  data:
+                    type: object
+                    properties:
+                      bookings:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            _id:
+                              type: string
+                            userID:
+                              type: string
+                            pujaID:
+                              type: object
+                            date:
+                              type: string
+                            time:
+                              type: string
+                            location:
+                              type: object
+                      currentPage:
+                        type: integer
+                      totalPages:
+                        type: integer
+                      totalBookings:
+                        type: integer
+        "401":
+          description: Unauthorized user.
+
+  /api/v1/booking/bookings/viewPanditBooking:
+    get:
+      summary: View pandit bookings
+      description: Retrieves a list of bookings for a pandit where they are selected.
+      parameters:
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 1
+          description: Page number for pagination.
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
+          description: Number of bookings per page.
+      responses:
+        "200":
+          description: Bookings retrieved successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  statusCode:
+                    type: integer
+                    example: 200
+                  message:
+                    type: string
+                    example: Bookings retrieved successfully.
+                  data:
+                    type: object
+                    properties:
+                      bookings:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            _id:
+                              type: string
+                            pujaID:
+                              type: object
+                            selectedPandit:
+                              type: array
+                              items:
+                                type: string
+                      currentPage:
+                        type: integer
+                      totalPages:
+                        type: integer
+                      totalBookings:
+                        type: integer
+        "401":
+          description: Unauthorized user.
+
+  /api/v1/booking/notifications:
+    get:
+      summary: View notifications
+      description: Retrieves a paginated list of notifications for the authenticated user.
+      parameters:
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 1
+          description: The page number for pagination.
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
+          description: The number of notifications per page.
+      responses:
+        "200":
           description: Notifications retrieved successfully
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  notifications:
-                    type: array
-                    items:
-                      $ref: "#/components/schemas/Notification"
-                  pagination:
+                  statusCode:
+                    type: integer
+                  message:
+                    type: string
+                  data:
                     type: object
                     properties:
-                      currentPage:
-                        type: integer
-                      totalPages:
-                        type: integer
-                      totalNotifications:
-                        type: integer
-                      limit:
-                        type: integer
-        401:
-          description: Unauthorized - user not authenticated
+                      notifications:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            _id:
+                              type: string
+                            senderDetails:
+                              type: object
+                            bookingDetails:
+                              type: object
+                            pujaDetails:
+                              type: object
+                      pagination:
+                        type: object
+                        properties:
+                          currentPage:
+                            type: integer
+                          totalPages:
+                            type: integer
+                          totalNotifications:
+                            type: integer
+                          limit:
+                            type: integer
+        "401":
+          description: Unauthorized user
+        "500":
+          description: Failed to retrieve notifications
 
   /api/v1/booking/notifications/mark-all-as-read:
     put:
       summary: Mark all notifications as read
-      tags:
-        - Notification
-      security:
-        - BearerAuth: []
-      responses:
-        200:
-          description: All notifications marked as read
-        404:
-          description: No unread notifications found
-        401:
-          description: Unauthorized - user not authenticated
-
-  /api/v1/booking/notifications/accept/{notificationId}:
-    put:
-      summary: Accept a booking request notification
-      tags:
-        - Notification
-      security:
-        - BearerAuth: []
-      parameters:
-        - in: path
-          name: notificationId
-          required: true
-          schema:
-            type: string
-          description: The ID of the notification to accept
-      responses:
-        200:
-          description: Notification accepted successfully
-        400:
-          description: Notification already accepted or declined
-        404:
-          description: Notification or related booking not found
-        401:
-          description: Unauthorized - user not authenticated
-
-  /api/v1/booking/bookings/{bookingId}/accepted-pandits:
-    get:
-      summary: Get list of accepted pandits for a booking
-      tags:
-        - Booking
-      security:
-        - BearerAuth: []
-      parameters:
-        - in: path
-          name: bookingId
-          required: true
-          schema:
-            type: string
-          description: The ID of the booking to retrieve accepted pandits for
-      responses:
-        200:
-          description: Accepted pandits retrieved successfully
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/User"
-        404:
-          description: No accepted pandits found
-        401:
-          description: Unauthorized - user not authenticated
-
-  /api/v1/booking/notifications/reject/{notificationId}:
-    put:
-      summary: Reject a booking notification
-      description: Allows a pandit to reject a booking notification by updating its status to "Rejected".
-      tags:
-        - Notification
-      parameters:
-        - name: notificationId
-          in: path
-          required: true
-          description: The ID of the notification to reject.
-          schema:
-            type: string
+      description: Marks all unread notifications for the authenticated user as read.
       responses:
         "200":
-          description: Notification successfully rejected.
+          description: Notifications marked as read successfully
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  status:
+                  statusCode:
                     type: integer
-                    example: 200
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      result:
+                        type: object
+                        properties:
+                          matchedCount:
+                            type: integer
+                          modifiedCount:
+                            type: integer
+        "401":
+          description: Unauthorized user
+        "500":
+          description: Failed to mark notifications
+
+  /api/v1/booking/notifications/accept/{notificationId}:
+    put:
+      summary: Accept a notification
+      description: Accepts a specific notification and updates its status to "Accepted."
+      parameters:
+        - name: notificationId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The ID of the notification to accept.
+      responses:
+        "200":
+          description: Notification accepted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  statusCode:
+                    type: integer
+                  message:
+                    type: string
                   data:
                     type: object
                     properties:
@@ -1564,35 +1485,103 @@ paths:
                         type: string
                       status:
                         type: string
-                        example: Rejected
+        "400":
+          description: Notification already accepted or declined
+        "401":
+          description: Unauthorized user
+        "404":
+          description: Notification or booking not found
+        "500":
+          description: Failed to accept notification
+
+  /api/v1/booking/bookings/{bookingId}/accepted-pandits:
+    get:
+      summary: Get accepted pandits for a booking
+      description: Retrieves a list of pandits who have accepted the booking.
+      parameters:
+        - name: bookingId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The ID of the booking.
+      responses:
+        "200":
+          description: Accepted pandits retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  statusCode:
+                    type: integer
                   message:
                     type: string
-                    example: Booking Notification rejected.
-        "400":
-          description: Bad Request - The notification has already been accepted or declined.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ApiError"
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        _id:
+                          type: string
+                        firstName:
+                          type: string
+                        lastName:
+                          type: string
+        "401":
+          description: Unauthorized user
+        "403":
+          description: Unauthorized access to booking
         "404":
-          description: Not Found - Notification, booking, or user not found.
+          description: Booking not found
+        "500":
+          description: Failed to retrieve accepted pandits
+
+  /api/v1/booking/notifications/reject/{notificationId}:
+    put:
+      summary: Reject a booking notification
+      description: Rejects a specific notification and updates its status to "Rejected."
+      parameters:
+        - name: notificationId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The ID of the notification to reject.
+      responses:
+        "200":
+          description: Notification rejected successfully
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ApiError"
-      requestBody:
-        description: No body is required as the action is performed based on the notification ID in the path.
-        required: false
+                type: object
+                properties:
+                  statusCode:
+                    type: integer
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      _id:
+                        type: string
+                      status:
+                        type: string
+        "400":
+          description: Notification already accepted or declined
+        "401":
+          description: Unauthorized user
+        "404":
+          description: Notification or booking not found
+        "500":
+          description: Failed to reject notification
 
   /api/v1/booking/bookings/choose-pandit:
     post:
       summary: Choose a pandit for a booking
-      tags:
-        - Booking
-      security:
-        - BearerAuth: []
+      description: Allows a user to select a specific pandit for their booking.
       requestBody:
-        description: Details to select a pandit for the booking
+        required: true
         content:
           application/json:
             schema:
@@ -1603,39 +1592,34 @@ paths:
               properties:
                 bookingId:
                   type: string
-                  description: The ID of the booking.
+                  description: ID of the booking.
+                  example: "64bd10af23755c36d887cd10"
                 panditId:
                   type: string
-                  description: The ID of the pandit to choose for the booking.
+                  description: ID of the pandit to select.
+                  example: "64bd10af23755c36d887cd11"
       responses:
-        200:
-          description: Pandit selected successfully
+        "200":
+          description: Pandit selected successfully.
           content:
             application/json:
               schema:
                 type: object
                 properties:
+                  statusCode:
+                    type: integer
+                    example: 200
                   message:
                     type: string
-                  booking:
-                    $ref: "#/components/schemas/Booking"
-        400:
-          description: Pandit not accepted or already selected
-        404:
-          description: Booking not found
-        401:
-          description: Unauthorized - user not authenticated
-
-      parameters:
-        - name: page
-          in: query
-          schema:
-            type: integer
-          description: Page number for pagination.
-        - name: limit
-          in: query
-          schema:
-            type: integer
+                    example: Pandit selected successfully.
+                  data:
+                    type: object
+        "400":
+          description: Pandit not among the ones who accepted or already selected.
+        "403":
+          description: Unauthorized access.
+        "404":
+          description: Booking not found.
 
 security:
   - bearerAuth: []

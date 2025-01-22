@@ -17,7 +17,7 @@ const verifyToken = (token) => {
 const verifyJWT = asyncHandler(async (req, res, next) => {
   try {
     const token = extractToken(req);
-
+    console.log("token is here", token);
     if (!token) {
       throw new ApiError(401, "Unauthorized request");
     }

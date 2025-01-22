@@ -44,11 +44,7 @@ router.route("/auth/google/callback").get(
   passport.authenticate("google", {
     failureRedirect: "/login/failed",
   }),
-  googleLogin,
-  (req, res) => {
-    console.log("Redirecting to:", process.env.CLIENT_URL);
-    res.redirect(process.env.CLIENT_URL);
-  }
+  googleLogin
 );
 
 router.route("/login").post(loginUser);

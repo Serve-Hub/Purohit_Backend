@@ -189,10 +189,20 @@ const viewNotification = asyncHandler(async (req, res) => {
   );
 });
 
-const acceptUserBooking = asyncHandler(async (req, res) => {
-  const { bookingId } = req.params;
+const acceptNotification = asyncHandler(async (req, res) => {
+  const { notificationId } = req.params;
 
-  const booking = await Booking.findById(bookingId);
+  const notification = await Notification.findById(notificationId);
+  if (!notification) throw new ApiError(404, "Notification not found.");
+
+  if (notification.status !== "Pending") {
+    throw new ApiError(400, "Notification already accepted or declined.");
+  }
+
+  notification.status = "Accepted";
+  await notification.save();
+
+  const booking = await Booking.findById(notification.relatedId);
   if (!booking) throw new ApiError(404, "Booking not found.");
 
   const user = await User.findById(booking.userID);
@@ -216,7 +226,7 @@ const acceptUserBooking = asyncHandler(async (req, res) => {
 
   return res
     .status(200)
-    .json(new ApiResponse(200, booking, "Booking accepted successfully."));
+    .json(new ApiResponse(200, notification, "Booking accepted successfully."));
 });
 
 const rejectBookingNotification = asyncHandler(async (req, res) => {
@@ -289,20 +299,14 @@ const getAcceptedPandits = asyncHandler(async (req, res) => {
 });
 
 const choosePanditForPuja = asyncHandler(async (req, res) => {
-  const { notificationId } = req.params;
+  const { bookingId, panditId } = req.body;
 
-  const notification = await Notification.findById(notificationId);
-  if (!notification) throw new ApiError(404, "Notification not found.");
-
-  const booking = await Booking.findById(notification.relatedId);
+  const booking = await Booking.findById(bookingId);
   if (!booking) throw new ApiError(404, "Booking not found.");
 
-  const panditId = notification.senderID;
-  if (!panditId) throw new ApiError(404, "Pandit not found.");
-
-  const userId = notification.receiverID;
-  if (!userId) throw new ApiError(404, "User not found.");
-
+  if (booking.userID.toString() !== req.user._id.toString()) {
+    throw new ApiError(403, "Unauthorized access.");
+  }
   // Ensure the pandit is among the accepted ones
   const acceptedNotifications = await Notification.find({
     relatedId: booking._id,
@@ -315,7 +319,10 @@ const choosePanditForPuja = asyncHandler(async (req, res) => {
   );
 
   if (!acceptedPandits.includes(panditId)) {
-    throw new ApiError(400, "Pandit not among the accepted ones.");
+    throw new ApiError(
+      400,
+      "Pandit not among the pandits that have accepted this booking."
+    );
   }
 
   if (booking.selectedPandit.includes(panditId)) {
@@ -433,7 +440,7 @@ const viewPanditBooking = asyncHandler(async (req, res) => {
 export {
   createBooking,
   viewNotification,
-  acceptUserBooking,
+  acceptNotification,
   rejectBookingNotification,
   getAcceptedPandits,
   choosePanditForPuja,

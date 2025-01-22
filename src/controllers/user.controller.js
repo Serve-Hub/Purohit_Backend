@@ -301,7 +301,6 @@ export const mobileResetPassword = asyncHandler(async (req, res) => {
   res.status(200).json(new ApiResponse(200, {}, "Password reset successful."));
 });
 
-
 export const refreshAccessToken = asyncHandler(async (req, res) => {
   const incomingRefreshToken =
     req.cookies.refreshToken || req.body.refreshToken;
@@ -541,7 +540,7 @@ export const googleLogin = asyncHandler(async (req, res, next) => {
     //       "User logged in successfully with Google"
     //     )
     //   );
-    next();
+    res.redirect(process.env.CLIENT_URL);
   } catch (error) {
     throw new ApiError(500, "Google login failed: " + error.message);
   }

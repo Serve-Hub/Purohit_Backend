@@ -3,11 +3,11 @@ import verifyJWT from "../middlewares/auth.middleware.js";
 import {
   createBooking,
   viewNotification,
-  acceptUserBooking,
+  acceptNotification,
+  rejectBookingNotification,
   getAcceptedPandits,
   choosePanditForPuja,
   markAllAsRead,
-  rejectBookingNotification,
   viewUserBooking,
   viewPanditBooking,
 } from "../controllers/booking.controller.js";
@@ -25,15 +25,15 @@ router.get("/notifications", viewNotification);
 // Mark all notifications as read
 router.put("/notifications/mark-all-as-read", markAllAsRead);
 
-// Accept user booking request
-router.put("/bookings/acceptUserBooking/:bookingId", acceptUserBooking);
-
 // Get accepted pandits for a specific booking
 router.get(
   "/bookings/:bookingId/accepted-pandits",
 
   getAcceptedPandits
 );
+
+// Accept a booking request (notification)
+router.put("/notifications/accept/:notificationId", acceptNotification);
 
 // Choose a pandit for a booking
 router.post("/bookings/choose-pandit", choosePanditForPuja);
