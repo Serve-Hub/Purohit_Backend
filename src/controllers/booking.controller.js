@@ -4,6 +4,7 @@ import Puja from "../models/puja.model.js";
 import Booking from "../models/booking.model.js";
 import ApiError from "../utils/ApiError.js";
 import ApiResponse from "../utils/ApiResponse.js";
+import KYP from "../models/kyp.model.js";
 import {
   sendNotificationToPandits,
   sendNotificationToSpecificUser,
@@ -285,14 +286,19 @@ const getAcceptedPandits = asyncHandler(async (req, res) => {
   }
 
   const panditIds = acceptedPandits.map((notif) => notif.senderID);
-  
+
   const pandits = await Promise.all(
     panditIds.map(async (panditId) => {
       // Find the pandit by ID and exclude password and refreshToken
       const pandit = await User.findById(panditId).select(
         "-password -refreshToken"
       );
-      return pandit;
+      const panditKYP = await KYP.find({ panditID: panditId });
+      const panditWithKYP = {
+        ...pandit.toObject(), // Convert the mongoose document to a plain JavaScript object
+        panditKYP, // Add KYP data as a new field
+      };
+      return panditWithKYP;
     })
   );
 
