@@ -28,7 +28,6 @@ router.put("/notifications/mark-all-as-read", markAllAsRead);
 // Get accepted pandits for a specific booking
 router.get(
   "/bookings/:bookingId/accepted-pandits",
-
   getAcceptedPandits
 );
 

@@ -275,8 +275,8 @@ const getAcceptedPandits = asyncHandler(async (req, res) => {
   const acceptedPandits = await Notification.find({
     relatedId: booking._id,
     relatedModel: "Booking",
-    status: "Accepted",
-  }).select("userID");
+    type: "Booking Acceptance",
+  }).select("senderID");
 
   if (!acceptedPandits.length) {
     return res
@@ -284,11 +284,16 @@ const getAcceptedPandits = asyncHandler(async (req, res) => {
       .json(new ApiResponse(200, acceptedPandits, "No pandit has accepted."));
   }
 
-  const panditIds = acceptedPandits.map((notif) => notif.userID);
-
-  // Fetch the pandit details from the User model
-  const pandits = await User.find({ _id: { $in: panditIds } }).select(
-    "-password -refreshToken"
+  const panditIds = acceptedPandits.map((notif) => notif.senderID);
+  
+  const pandits = await Promise.all(
+    panditIds.map(async (panditId) => {
+      // Find the pandit by ID and exclude password and refreshToken
+      const pandit = await User.findById(panditId).select(
+        "-password -refreshToken"
+      );
+      return pandit;
+    })
   );
 
   return res
