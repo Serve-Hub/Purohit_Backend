@@ -26,16 +26,13 @@ router.get("/notifications", viewNotification);
 router.put("/notifications/mark-all-as-read", markAllAsRead);
 
 // Get accepted pandits for a specific booking
-router.get(
-  "/bookings/:bookingId/accepted-pandits",
-  getAcceptedPandits
-);
+router.get("/bookings/:bookingId/accepted-pandits", getAcceptedPandits);
 
 // Accept a booking request (notification)
 router.put("/notifications/accept/:notificationId", acceptNotification);
 
 // Choose a pandit for a booking
-router.post("/bookings/choose-pandit", choosePanditForPuja);
+router.post("/bookings/accepted-pandits/choosePandit", choosePanditForPuja);
 
 // Reject a booking request (notification)
 router.put("/notifications/reject/:notificationId", rejectBookingNotification);

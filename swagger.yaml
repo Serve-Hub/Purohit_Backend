@@ -399,12 +399,12 @@ paths:
               schema:
                 $ref: "#/components/schemas/ApiError"
 
-  /api/v1/users//updateAccountDetails:
+  /api/v1/users/updateAccountDetails:
     patch:
       summary: Update user account details
       description: Allows authenticated users to update their first name, last name, and bio.
       tags:
-        - Account Management
+        - "Users"
       security:
         - bearerAuth: []
       requestBody:
@@ -443,12 +443,12 @@ paths:
               schema:
                 $ref: "#/components/schemas/ApiError"
 
-  /api/v1/users//updatePassword:
+  /api/v1/users/updatePassword:
     patch:
       summary: Update user password
       description: Allows authenticated users to update their password by providing the old password.
       tags:
-        - Account Management
+        - "Users"
       security:
         - bearerAuth: []
       requestBody:
@@ -1153,6 +1153,8 @@ paths:
 
   /api/v1/booking/bookings/{pujaId}:
     post:
+      tags:
+        - "Booking"
       summary: Create a new booking
       description: Creates a booking for a specific puja.
       parameters:
@@ -1244,6 +1246,8 @@ paths:
   /api/v1/booking/bookings/viewBooking:
     get:
       summary: View user bookings
+      tags:
+        - "Booking"
       description: Retrieves a list of bookings for the authenticated user with pagination.
       parameters:
         - name: page
@@ -1306,6 +1310,8 @@ paths:
   /api/v1/booking/bookings/viewPanditBooking:
     get:
       summary: View pandit bookings
+      tags:
+        - "Booking"
       description: Retrieves a list of bookings for a pandit where they are selected.
       parameters:
         - name: page
@@ -1364,6 +1370,8 @@ paths:
   /api/v1/booking/notifications:
     get:
       summary: View notifications
+      tags:
+        - "Notification"
       description: Retrieves a paginated list of notifications for the authenticated user.
       parameters:
         - name: page
@@ -1427,6 +1435,8 @@ paths:
   /api/v1/booking/notifications/mark-all-as-read:
     put:
       summary: Mark all notifications as read
+      tags:
+        - "Notification"
       description: Marks all unread notifications for the authenticated user as read.
       responses:
         "200":
@@ -1458,6 +1468,8 @@ paths:
   /api/v1/booking/notifications/accept/{notificationId}:
     put:
       summary: Accept a notification
+      tags:
+        - "Notification"
       description: Accepts a specific notification and updates its status to "Accepted."
       parameters:
         - name: notificationId
@@ -1497,6 +1509,8 @@ paths:
   /api/v1/booking/bookings/{bookingId}/accepted-pandits:
     get:
       summary: Get accepted pandits for a booking
+      tags:
+        - "Booking"
       description: Retrieves a list of pandits who have accepted the booking.
       parameters:
         - name: bookingId
@@ -1540,6 +1554,8 @@ paths:
   /api/v1/booking/notifications/reject/{notificationId}:
     put:
       summary: Reject a booking notification
+      tags:
+        - "Notification"
       description: Rejects a specific notification and updates its status to "Rejected."
       parameters:
         - name: notificationId
@@ -1576,9 +1592,11 @@ paths:
         "500":
           description: Failed to reject notification
 
-  /api/v1/booking/bookings/choose-pandit:
+  /api/v1/booking/bookings/bookings/accepted-pandits/choosePandit:
     post:
       summary: Choose a pandit for a booking
+      tags:
+        - "Booking"
       description: Allows a user to select a specific pandit for their booking.
       requestBody:
         required: true

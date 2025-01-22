@@ -322,11 +322,11 @@ const choosePanditForPuja = asyncHandler(async (req, res) => {
   const acceptedNotifications = await Notification.find({
     relatedId: booking._id,
     relatedModel: "Booking",
-    status: "Accepted",
-  }).select("userID");
+    type: "Booking Acceptance",
+  }).select("senderID");
 
   const acceptedPandits = acceptedNotifications.map((notification) =>
-    notification.userID.toString()
+    notification.senderID.toString()
   );
 
   if (!acceptedPandits.includes(panditId)) {
@@ -367,7 +367,7 @@ const choosePanditForPuja = asyncHandler(async (req, res) => {
 
   return res
     .status(200)
-    .json(new ApiResponse(200, booking, "Pandit selected successfully."));
+    .json(new ApiResponse(200, {}, "Pandit selected successfully."));
 });
 
 const viewUserBooking = asyncHandler(async (req, res) => {

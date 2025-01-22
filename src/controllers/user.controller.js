@@ -516,7 +516,7 @@ export const googleLogin = asyncHandler(async (req, res, next) => {
     const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(
       user._id
     );
-    console.log("token is here", accessToken);
+    // console.log("token is here", accessToken);
     const options = {
       httpOnly: true,
       secure: true,
