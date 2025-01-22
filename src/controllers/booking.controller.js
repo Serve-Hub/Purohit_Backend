@@ -385,12 +385,66 @@ const viewUserBooking = asyncHandler(async (req, res) => {
   const skip = (page - 1) * limit;
 
   // Fetch bookings with pagination
+  // const bookings = await Booking.find({ userID: userId })
+  //   .populate("pujaID") // Populate puja details with specific fields
+  //   .sort({ createdAt: -1 }) // Sort bookings by creation date (latest first)
+  //   .skip(skip) // Skip records for pagination
+  //   .limit(limit) // Limit the number of records per page
+  //   .lean(); // Use lean for better performance with plain JavaScript objects
+
+  // const enhancedBookings = await Promise.all(
+  //   bookings.map(async (booking) => {
+  //     if (booking.selectedPandit && booking.selectedPandit.length > 0) {
+  //       const selectedID = booking.selectedPandit;
+  //       const panditDetails = await User.findById(selectedID)
+  //         .select("-password -refreshToken")
+  //         .lean(); // Assuming Pandit is another model
+  //       return { ...booking, panditDetails };
+  //     }
+  //     return booking;
+  //   })
+  // );
+
   const bookings = await Booking.find({ userID: userId })
     .populate("pujaID") // Populate puja details with specific fields
     .sort({ createdAt: -1 }) // Sort bookings by creation date (latest first)
     .skip(skip) // Skip records for pagination
     .limit(limit) // Limit the number of records per page
     .lean(); // Use lean for better performance with plain JavaScript objects
+
+  // Collect all selectedPandit IDs from bookings
+  const allSelectedPanditIds = bookings
+    .filter(
+      (booking) => booking.selectedPandit && booking.selectedPandit.length > 0
+    )
+    .map((booking) => booking.selectedPandit);
+
+  // Flatten the array if needed and ensure unique IDs
+  const uniquePanditIds = [...new Set(allSelectedPanditIds.flat())];
+
+  // Fetch all relevant pandit details in a single query
+  const panditDetailsMap = {};
+  if (uniquePanditIds.length > 0) {
+    const panditDetails = await User.find({ _id: { $in: uniquePanditIds } })
+      .select("-password -refreshToken")
+      .lean();
+
+    // Create a map of panditId -> panditDetails for quick lookup
+    panditDetails.forEach((pandit) => {
+      panditDetailsMap[pandit._id.toString()] = pandit;
+    });
+  }
+
+  // Enhance bookings by attaching relevant panditDetails
+  const enhancedBookings = bookings.map((booking) => {
+    if (booking.selectedPandit && booking.selectedPandit.length > 0) {
+      const selectedPandits = booking.selectedPandit.map(
+        (id) => panditDetailsMap[id] || null
+      );
+      return { ...booking, panditDetails: selectedPandits };
+    }
+    return booking;
+  });
 
   const totalBookings = await Booking.countDocuments({ userID: userId }); // Count total bookings for pagination metadata
 
@@ -399,7 +453,7 @@ const viewUserBooking = asyncHandler(async (req, res) => {
     new ApiResponse(
       200,
       {
-        bookings,
+        enhancedBookings,
         currentPage: page,
         totalPages: Math.ceil(totalBookings / limit),
         totalBookings,
