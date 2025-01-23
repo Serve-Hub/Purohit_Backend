@@ -341,6 +341,7 @@ const choosePanditForPuja = asyncHandler(async (req, res) => {
   }
 
   // Update the booking to reflect that the user has selected the pandit
+  booking.acceptedPandit.pop(panditId);
   booking.selectedPandit.push(panditId);
   booking.panditAcceptedCount += 1;
   await booking.save();
@@ -614,6 +615,26 @@ const viewPanditBooking = asyncHandler(async (req, res) => {
   );
 });
 
+const checkPoojaBookingStatus = asyncHandler(async (req, res) => {
+  const { poojaId } = req.params; // Pooja ID from the frontend
+  const userId = req.user._id; // Logged-in user's ID
+
+  // Check if the user has booked this pooja
+  const existingBooking = await Booking.findOne({
+    pujaID: poojaId,
+    userID: userId,
+    status: { $ne: "Cancelled" },
+  });
+
+  // Send the booking status
+  return res.status(200).json({
+    hasBooked: !!existingBooking, // true if a booking exists, false otherwise
+    message: existingBooking
+      ? "User has already booked this pooja."
+      : "User has not booked this pooja yet.",
+  });
+});
+
 export {
   createBooking,
   viewNotification,
@@ -624,4 +645,5 @@ export {
   markAllAsRead,
   viewUserBooking,
   viewPanditBooking,
+  checkPoojaBookingStatus,
 };

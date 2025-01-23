@@ -9,6 +9,7 @@ import {
   choosePanditForPuja,
   markAllAsRead,
   viewUserBooking,
+  checkPoojaBookingStatus,
   viewPanditBooking,
 } from "../controllers/booking.controller.js";
 
@@ -42,5 +43,11 @@ router.get("/bookings/viewBooking", viewUserBooking);
 
 // View bookings
 router.get("/bookings/viewPanditBooking", viewPanditBooking);
+
+//view booking status
+router.get(
+  "/bookings/checkPoojaBookingStatus:poojaId",
+  checkPoojaBookingStatus
+);
 
 export default router;
