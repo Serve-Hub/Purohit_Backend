@@ -209,6 +209,9 @@ const acceptNotification = asyncHandler(async (req, res) => {
   const user = await User.findById(booking.userID);
   if (!user) throw new ApiError(404, "User not found.");
 
+  booking.acceptedPandit.push(req.user._id);
+  await booking.save();
+
   const notificationData = {
     senderID: req.user._id,
     receiverID: user._id,
@@ -263,7 +266,11 @@ const getAcceptedPandits = asyncHandler(async (req, res) => {
   const { bookingId } = req.params;
 
   // Fetch the booking details
-  const booking = await Booking.findById(bookingId);
+  const booking = await Booking.findById(bookingId).populate({
+    path: "acceptedPandit",
+    select: "-password -refreshToken", // Exclude sensitive fields here
+  });
+
   if (!booking) {
     throw new ApiError(404, "Booking not found.");
   }
@@ -271,77 +278,66 @@ const getAcceptedPandits = asyncHandler(async (req, res) => {
   if (booking.userID.toString() !== userId.toString()) {
     throw new ApiError(403, "Unauthorized access.");
   }
+  const kypDetails = await KYP.find({
+    panditID: {
+      $in: booking.acceptedPandit.map((pandit) => {
+        return pandit._id; // Ensure the ID is returned for the query
+      }),
+    },
+  });
 
-  // Fetch accepted pandits for this booking
-  const acceptedPandits = await Notification.find({
-    relatedId: booking._id,
-    relatedModel: "Booking",
-    type: "Booking Acceptance", 
-  }).select("senderID");
-
-  if (!acceptedPandits.length) {
-    return res
-      .status(200)
-      .json(new ApiResponse(200, acceptedPandits, "No pandit has accepted."));
-  }
-
-  const panditIds = acceptedPandits.map((notif) => notif.senderID);
-
-  const pandits = await Promise.all(
-    panditIds.map(async (panditId) => {
-      // Find the pandit by ID and exclude password and refreshToken
-      const pandit = await User.findById(panditId).select(
-        "-password -refreshToken"
-      );
-      const panditKYP = await KYP.find({ panditID: panditId });
-      const panditWithKYP = {
-        ...pandit.toObject(), // Convert the mongoose document to a plain JavaScript object
-        panditKYP, // Add KYP data as a new field
-      };
-      return panditWithKYP;
-    })
-  );
+  const combinedDetails = booking.acceptedPandit.map((pandit) => {
+    const kyp = kypDetails.find((kypEntry) => {
+      console.log(kypEntry);
+      return kypEntry.panditID.toString() === pandit._id.toString();
+    });
+    return {
+      ...pandit.toObject(),
+      kypDetails: kyp || null,
+    };
+  });
 
   return res
     .status(200)
     .json(
-      new ApiResponse(200, pandits, "Accepted pandits retrieved successfully.")
+      new ApiResponse(
+        200,
+        combinedDetails,
+        "Accepted pandits retrieved successfully."
+      )
     );
 });
 
 const choosePanditForPuja = asyncHandler(async (req, res) => {
   const { bookingId, panditId } = req.body;
-  console.log("bookingID=", bookingId);
-  console.log("paditId=", panditId);
+
+  if (!bookingId || !panditId) {
+    throw new ApiError(400, "Both bookingId and panditId are required.");
+  }
+
   const booking = await Booking.findById(bookingId);
   if (!booking) throw new ApiError(404, "Booking not found.");
 
   if (booking.userID.toString() !== req.user._id.toString()) {
     throw new ApiError(403, "Unauthorized access.");
   }
-  // Ensure the pandit is among the accepted ones
-  const acceptedNotifications = await Notification.find({
-    relatedId: booking._id,
-    relatedModel: "Booking",
-    type: "Booking Acceptance",
-  }).select("senderID");
 
-  const acceptedPandits = acceptedNotifications.map((notification) =>
-    notification.senderID.toString()
-  );
-
-  if (!acceptedPandits.includes(panditId)) {
+  // Edge Case 4: Check if the pandit is in the acceptedPandit list
+  if (
+    !booking.acceptedPandit.some(
+      (pandit) => pandit._id.toString() === panditId.toString()
+    )
+  ) {
     throw new ApiError(
       400,
-      "Pandit not among the pandits that have accepted this booking."
+      "The selected pandit has not accepted the booking."
     );
   }
-
-  if (booking.selectedPandit.includes(panditId)) {
-    throw new ApiError(
-      400,
-      "Pandit has already been selected for this booking."
-    );
+  if (
+    booking.selectedPandit &&
+    booking.selectedPandit.toString() === panditId.toString()
+  ) {
+    throw new ApiError(400, "The selected pandit has already been chosen.");
   }
 
   // Update the booking to reflect that the user has selected the pandit

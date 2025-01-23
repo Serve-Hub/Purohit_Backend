@@ -22,6 +22,11 @@ const bookingSchema = new Schema(
       ref: "User", // Reference to the pandit the user selects
       default: [],
     },
+    acceptedPandit: {
+      type: [Schema.Types.ObjectId],
+      ref: "User", // Reference to the pandit the user selects
+      default: [],
+    },
     status: {
       type: String,
       enum: ["Pending", "Accepted", "Completed", "Cancelled"],
