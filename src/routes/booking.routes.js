@@ -46,7 +46,7 @@ router.get("/bookings/viewPanditBooking", viewPanditBooking);
 
 //view booking status
 router.get(
-  "/bookings/checkPoojaBookingStatus:poojaId",
+  "/bookings/checkPoojaBookingStatus/:poojaId",
   checkPoojaBookingStatus
 );
 

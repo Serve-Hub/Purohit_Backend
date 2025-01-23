@@ -1639,6 +1639,70 @@ paths:
         "404":
           description: Booking not found.
 
+  /api/v1/booking/bookings/checkPoojaBookingStatus/{poojaId}:
+    get:
+      summary: Check if a user has booked a specific pooja
+      tags:
+        - "Booking"
+      description: Returns the booking status of a specific pooja for the logged-in user.
+      parameters:
+        - in: path
+          name: poojaId
+          required: true
+          schema:
+            type: string
+          description: The ID of the pooja to check booking status for.
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for user authentication.
+      responses:
+        "200":
+          description: Booking status retrieved successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  hasBooked:
+                    type: boolean
+                    description: Whether the user has already booked the pooja.
+                  message:
+                    type: string
+                    description: A message describing the booking status.
+        "400":
+          description: Invalid request parameters.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message.
+        "401":
+          description: Unauthorized access. User is not authenticated.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Authentication error message.
+        "500":
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Server error message.
+
 security:
   - bearerAuth: []
 components:
