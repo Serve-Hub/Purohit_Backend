@@ -276,7 +276,7 @@ const getAcceptedPandits = asyncHandler(async (req, res) => {
   const acceptedPandits = await Notification.find({
     relatedId: booking._id,
     relatedModel: "Booking",
-    type: "Booking Acceptance",
+    type: "Booking Acceptance", 
   }).select("senderID");
 
   if (!acceptedPandits.length) {
