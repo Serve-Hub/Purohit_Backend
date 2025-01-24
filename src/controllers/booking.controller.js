@@ -589,23 +589,43 @@ const viewPanditBooking = asyncHandler(async (req, res) => {
   const skip = (page - 1) * limit;
 
   // Fetch bookings where the pandit is in the selectedPandit array
-  const bookings = await Booking.find({ selectedPandit: { $in: [panditId] } })
-    .populate("pujaID") // Populate puja details
-    .sort({ createdAt: -1 }) // Sort by creation time
-    .skip(skip) // Skip records for pagination
-    .limit(limit) // Limit the number of records per page
-    .lean(); // Return plain JavaScript objects
+  const [bookings, totalBookings] = await Promise.all([
+    Booking.find({ selectedPandit: { $in: [panditId] } })
+      .populate("pujaID") // Populate puja details with specific fields if necessary
+      .sort({ createdAt: -1 }) // Sort by creation time (latest first)
+      .skip(skip) // Skip records for pagination
+      .limit(limit) // Limit records per page
+      .lean(), // Return plain JavaScript objects
+    Booking.countDocuments({ selectedPandit: { $in: [panditId] } }), // Count total bookings
+  ]);
 
-  const totalBookings = await Booking.countDocuments({
-    selectedPandit: { $in: [panditId] },
-  }); // Count total bookings
+  const uniqueUserIds = [
+    ...new Set(bookings.map((b) => b.userID?.toString()).filter(Boolean)), // Ensure user IDs are strings
+  ];
+
+  const userDetailsMap = uniqueUserIds.length
+    ? await User.find({ _id: { $in: uniqueUserIds } })
+        .select("-password -refreshToken") // Exclude sensitive fields
+        .lean()
+        .then((users) =>
+          users.reduce((acc, user) => {
+            acc[user._id.toString()] = user; // Map user details by ID
+            return acc;
+          }, {})
+        )
+    : {};
+
+  const bookingsWithUserDetails = bookings.map((booking) => ({
+    ...booking,
+    user: userDetailsMap[booking.userID?.toString()] || null, // Attach user details or null if not found
+  }));
 
   // Respond with the bookings and pagination details
   return res.status(200).json(
     new ApiResponse(
       200,
       {
-        bookings,
+        bookings: bookingsWithUserDetails,
         currentPage: page,
         totalPages: Math.ceil(totalBookings / limit),
         totalBookings,

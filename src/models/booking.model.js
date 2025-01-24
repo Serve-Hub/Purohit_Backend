@@ -71,6 +71,12 @@ const bookingSchema = new Schema(
       type: Date,
       default: Date.now,
     },
+    reviews: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Review",
+      },
+    ],
   },
   { timestamps: true }
 );
