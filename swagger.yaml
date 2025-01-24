@@ -1097,6 +1097,138 @@ paths:
       security:
         - bearerAuth: []
 
+  /api/v1/kyp/updateKYP/{kpyID}:
+    patch:
+      summary: Update a KYP entry
+      description: Allows updating an existing KYP entry, including partial updates for specific fields or documents.
+      tags:
+        - KYP
+      parameters:
+        - in: path
+          name: kpyID
+          required: true
+          schema:
+            type: string
+          description: The ID of the KYP entry to be updated.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                phoneNumber:
+                  type: string
+                  description: Updated phone number.
+                  example: "9876543210"
+                day:
+                  type: integer
+                  description: Updated day of birth.
+                  example: 1
+                month:
+                  type: integer
+                  description: Updated month of birth.
+                  example: 1
+                year:
+                  type: integer
+                  description: Updated year of birth.
+                  example: 2000
+                province:
+                  type: string
+                  description: Updated temporary province.
+                  example: "Province 1"
+                district:
+                  type: string
+                  description: Updated temporary district.
+                  example: "District A"
+                municipality:
+                  type: string
+                  description: Updated temporary municipality.
+                  example: "Municipality X"
+                tolAddress:
+                  type: string
+                  description: Updated temporary tol address.
+                  example: "Tol Address Y"
+                pmProvince:
+                  type: string
+                  description: Updated permanent province.
+                  example: "Province 2"
+                pmDistrict:
+                  type: string
+                  description: Updated permanent district.
+                  example: "District B"
+                pmMun:
+                  type: string
+                  description: Updated permanent municipality.
+                  example: "Municipality Y"
+                pmToladdress:
+                  type: string
+                  description: Updated permanent tol address.
+                  example: "Tol Address Z"
+                qualification:
+                  type: string
+                  description: Updated qualification.
+                  example: "Bachelor's"
+                experience:
+                  type: string
+                  description: Updated experience.
+                  example: "5 years"
+                institution:
+                  type: string
+                  description: Updated institution.
+                  example: "XYZ University"
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                qcertificate:
+                  type: string
+                  format: binary
+                  description: New qualification certificate.
+                citizenshipFrontPhoto:
+                  type: string
+                  format: binary
+                  description: New citizenship front photo.
+                citizenshipBackPhoto:
+                  type: string
+                  format: binary
+                  description: New citizenship back photo.
+      responses:
+        "200":
+          description: Successfully updated the KYP entry.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+        "400":
+          description: Invalid input or bad request.
+        "404":
+          description: KYP entry not found.
+        "500":
+          description: Server error.
+
+  /api/v1/kyp/getKYPStatus:
+    get:
+      summary: Get KYP status
+      description: Retrieves the current user's KYP entry status.
+      tags:
+        - KYP
+      responses:
+        "200":
+          description: Successfully fetched the KYP status.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/KYP"
+        "400":
+          description: Invalid request.
+        "404":
+          description: KYP entry not found.
+        "500":
+          description: Server error.
+
   /api/v1/kyp/viewKYP/{id}:
     post:
       summary: View a specific KYP by ID
@@ -1644,7 +1776,7 @@ paths:
       summary: Reject a Pandit for a Booking
       description: Reject a pandit who has previously accepted the booking.
       tags:
-        - Bookings
+        - Booking
       requestBody:
         required: true
         content:

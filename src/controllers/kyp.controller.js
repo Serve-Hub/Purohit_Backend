@@ -150,7 +150,9 @@ const viewKYP = asyncHandler(async (req, res) => {
   if (!kyp) {
     throw new ApiError(404, "KYP not found");
   }
-  const user = await User.findById(kyp.panditID);
+  const user = await User.findById(kyp.panditID).select(
+    "-password -refreshToken"
+  );
   if (!user) {
     throw new ApiError(404, "User not found");
   }
@@ -183,4 +185,107 @@ const updateKYPStatus = asyncHandler(async (req, res) => {
   return res.status(200).json(new ApiResponse(200, kyp, "KYP status updated"));
 });
 
-export { fillKYP, viewAllKYP, viewKYP, updateKYPStatus };
+const updateKYP = asyncHandler(async (req, res) => {
+  const {
+    phoneNumber,
+    day,
+    month,
+    year,
+    province,
+    district,
+    municipality,
+    tolAddress,
+    pmProvince,
+    pmDistrict,
+    pmToladdress,
+    pmMun,
+    qualification,
+    experience,
+    institution,
+  } = req.body;
+
+  const { kpyID } = req.params;
+  const existingKYP = await KYP.findById(kpyID);
+
+  if (!existingKYP) {
+    throw new ApiError(404, "KYP not found");
+  }
+
+  const files = req.files;
+  const qcertificateLocalPath = files?.qcertificate?.[0]?.path || null;
+  const citizenshipFrontPhotoLocalPath =
+    files?.citizenshipFrontPhoto?.[0]?.path || null;
+  const citizenshipBackPhotoLocalPath =
+    files?.citizenshipBackPhoto?.[0]?.path || null;
+
+  const updatedDocuments = { ...existingKYP.documents };
+
+  // Update the qualification certificate if a new file is provided
+  if (qcertificateLocalPath) {
+    const qcertificateImage = await uploadOnCloudinary(qcertificateLocalPath);
+    updatedDocuments.qualificationCertificate = qcertificateImage.url;
+  }
+
+  // Update the citizenship front photo if a new file is provided
+  if (citizenshipFrontPhotoLocalPath) {
+    const citizenshipFrontPhotoImage = await uploadOnCloudinary(
+      citizenshipFrontPhotoLocalPath
+    );
+    updatedDocuments.citizenshipFrontPhoto = citizenshipFrontPhotoImage.url;
+  }
+
+  // Update the citizenship back photo if a new file is provided
+  if (citizenshipBackPhotoLocalPath) {
+    const citizenshipBackPhotoImage = await uploadOnCloudinary(
+      citizenshipBackPhotoLocalPath
+    );
+    updatedDocuments.citizenshipBackPhoto = citizenshipBackPhotoImage.url;
+  }
+
+  // Update the existing KYP entry
+  existingKYP.phoneNumber = phoneNumber || existingKYP.phoneNumber;
+  existingKYP.dateOfBirth = {
+    day: day || existingKYP.dateOfBirth.day,
+    month: month || existingKYP.dateOfBirth.month,
+    year: year || existingKYP.dateOfBirth.year,
+  };
+  existingKYP.temporaryAddress = {
+    province: province || existingKYP.temporaryAddress.province,
+    district: district || existingKYP.temporaryAddress.district,
+    municipality: municipality || existingKYP.temporaryAddress.municipality,
+    tolAddress: tolAddress || existingKYP.temporaryAddress.tolAddress,
+  };
+  existingKYP.permanentAddress = {
+    province: pmProvince || existingKYP.permanentAddress.province,
+    district: pmDistrict || existingKYP.permanentAddress.district,
+    municipality: pmMun || existingKYP.permanentAddress.municipality,
+    tolAddress: pmToladdress || existingKYP.permanentAddress.tolAddress,
+  };
+  existingKYP.qualification = qualification || existingKYP.qualification;
+  existingKYP.experience = experience || existingKYP.experience;
+  existingKYP.institution = institution || existingKYP.institution;
+  existingKYP.documents = updatedDocuments;
+
+  await existingKYP.save();
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, existingKYP, "KYP updated successfully"));
+});
+
+const getKYPStatus = asyncHandler(async (req, res) => {
+  const kyp = await KYP.find({ panditID: req.user._id }).select("status");
+  if (!kyp) {
+    throw new ApiError(404, "KYP not found");
+  }
+  res.status(200).json(new ApiResponse(200, kyp, "KYP fetched successfully."));
+});
+
+export {
+  fillKYP,
+  viewAllKYP,
+  viewKYP,
+  updateKYPStatus,
+  updateKYP,
+  getKYPStatus,
+};

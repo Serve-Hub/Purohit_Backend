@@ -5,6 +5,8 @@ import {
   viewAllKYP,
   viewKYP,
   updateKYPStatus,
+  updateKYP,
+  getKYPStatus,
 } from "../controllers/kyp.controller.js";
 import { upload } from "../middlewares/multer.middleware.js";
 
@@ -23,5 +25,7 @@ router.route("/fillKYP").post(
 router.route("/viewAllKYP").post(viewAllKYP);
 router.route("/viewKYP/:id").post(viewKYP);
 router.route("/updateKYPStatus/:id").patch(updateKYPStatus);
+router.route("/updateKYP/:kpyID").patch(updateKYP);
+router.route("/getKYPStatus").get(getKYPStatus);
 
 export default router;
