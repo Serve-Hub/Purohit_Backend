@@ -1639,6 +1639,87 @@ paths:
         "404":
           description: Booking not found.
 
+  /api/v1/booking/bookings/accepted-pandits/rejectPandit:
+    post:
+      summary: Reject a Pandit for a Booking
+      description: Reject a pandit who has previously accepted the booking.
+      tags:
+        - Bookings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                bookingId:
+                  type: string
+                  description: The ID of the booking.
+                panditId:
+                  type: string
+                  description: The ID of the pandit to reject.
+              required:
+                - bookingId
+                - panditId
+      responses:
+        "200":
+          description: Pandit rejected successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 200
+                  data:
+                    type: object
+                    description: Response data (empty object).
+                  message:
+                    type: string
+                    example: Pandit rejected successfully.
+        "400":
+          description: Bad request.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 400
+                  error:
+                    type: string
+                    example: Both bookingId and panditId are required.
+        "403":
+          description: Unauthorized access.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 403
+                  error:
+                    type: string
+                    example: Unauthorized access.
+        "404":
+          description: Booking not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 404
+                  error:
+                    type: string
+                    example: Booking not found.
+      security:
+        - bearerAuth: []
+
   /api/v1/booking/bookings/checkPoojaBookingStatus/{poojaId}:
     get:
       summary: Check if a user has booked a specific pooja

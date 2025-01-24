@@ -11,6 +11,7 @@ import {
   viewUserBooking,
   checkPoojaBookingStatus,
   viewPanditBooking,
+  rejectPanditForPuja,
 } from "../controllers/booking.controller.js";
 
 const router = Router();
@@ -49,5 +50,8 @@ router.get(
   "/bookings/checkPoojaBookingStatus/:poojaId",
   checkPoojaBookingStatus
 );
+
+//reject pandit for booking
+router.post("/bookings/accepted-pandits/rejectPandit", rejectPanditForPuja);
 
 export default router;

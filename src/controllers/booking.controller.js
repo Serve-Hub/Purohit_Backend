@@ -368,6 +368,44 @@ const choosePanditForPuja = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, {}, "Pandit selected successfully."));
 });
 
+const rejectPanditForPuja = asyncHandler(async (req, res) => {
+  const { bookingId, panditId } = req.body;
+  if (!bookingId || !panditId) {
+    throw new ApiError(400, "Both bookingId and panditId are required.");
+  }
+
+  const booking = await Booking.findById(bookingId);
+  if (!booking) throw new ApiError(404, "Booking not found.");
+
+  if (booking.userID.toString() !== req.user._id.toString()) {
+    throw new ApiError(403, "Unauthorized access.");
+  }
+  if (
+    !booking.acceptedPandit.some(
+      (pandit) => pandit._id.toString() === panditId.toString()
+    )
+  ) {
+    throw new ApiError(
+      400,
+      "The selected pandit has not accepted the booking."
+    );
+  }
+
+  if (
+    booking.selectedPandit &&
+    booking.selectedPandit.toString() === panditId.toString()
+  ) {
+    throw new ApiError(400, "The selected pandit has already been chosen.");
+  }
+
+  booking.acceptedPandit.pop(panditId);
+  await booking.save();
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, {}, "Pandit rejected successfully."));
+});
+
 // const viewUserBooking = asyncHandler(async (req, res) => {
 //   const userId = req.user?._id;
 
@@ -666,4 +704,5 @@ export {
   viewUserBooking,
   viewPanditBooking,
   checkPoojaBookingStatus,
+  rejectPanditForPuja,
 };
