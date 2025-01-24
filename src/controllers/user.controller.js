@@ -517,15 +517,14 @@ export const googleLogin = asyncHandler(async (req, res, next) => {
       user._id
     );
     // console.log("token is here", accessToken);
-    const options = {
-      httpOnly: true,
-      secure: true,
-    };
 
     res
       .status(200)
-      .cookie("accessToken", accessToken, options)
-      .cookie("refreshToken", refreshToken, options);
+      .cookie("accessToken", accessToken)
+      .cookie("refreshToken", refreshToken)
+      .cookie("loggedin", "true")
+      .cookie("isAdmin", user.isAdmin)
+      .cookie("isPandit", user.isPandit);
 
     const loggedInUser = await User.findById(user._id).select(
       "-password -refreshToken"
