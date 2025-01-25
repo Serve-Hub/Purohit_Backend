@@ -6,6 +6,7 @@ import ApiResponse from "../utils/ApiResponse.js";
 import mongoose from "mongoose";
 import cloudinary from "cloudinary";
 import { deleteFromCloudinary } from "../utils/cloudinary.js";
+import User from "../models/user.model.js";
 
 const addPuja = asyncHandler(async (req, res) => {
   const { pujaName, baseFare, category, duration, description } = req.body;
@@ -47,13 +48,13 @@ const editPuja = asyncHandler(async (req, res) => {
   const newValues = req.body;
 
   // Check for empty fields
-  const hasEmptyFields = Object.values(newValues).some(
-    (value) => value?.trim() === ""
-  );
+  // const hasEmptyFields = Object.values(newValues).some(
+  //   (value) => value?.trim() === ""
+  // );
 
-  if (hasEmptyFields) {
-    throw new ApiError(400, "All fields are required");
-  }
+  // if (hasEmptyFields) {
+  //   throw new ApiError(400, "All fields are required");
+  // }
   const puja = await Puja.findById(pujaId);
 
   if (!puja) {
@@ -230,6 +231,14 @@ const searchPuja = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, pujas, "Pujas found matching the query string"));
 });
 
+const getAllPanditUsers = async (req, res) => {
+  // Fetch users whose isPandit field is true
+  const panditUsers = await User.find({ isPandit: true });
+  // Return the list of pandit users
+  res
+    .status(200)
+    .json(new ApiResponse(200, panditUsers, "Pandits Fetched successfully."));
+};
 // const getAllVideos = asyncHandler(async (req, res) => {
 //   const page = req.query.page || 1;
 //   const limit = req.query.limit || 3;
@@ -411,4 +420,12 @@ const searchPuja = asyncHandler(async (req, res) => {
 //     )
 //   );
 // });
-export { addPuja, editPuja, getPujas, deletePuja, searchPuja, getSpecificPuja };
+export {
+  addPuja,
+  editPuja,
+  getPujas,
+  deletePuja,
+  searchPuja,
+  getSpecificPuja,
+  getAllPanditUsers,
+};

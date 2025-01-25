@@ -992,6 +992,57 @@ paths:
                     type: string
                     example: Internal server error
 
+  /api/v1/admin/getAllPanditUsers:
+    get:
+      summary: Get all users with isPandit set to true
+      description: Fetches all users where the isPandit field is true.
+      tags:
+        - Admin
+      responses:
+        "200":
+          description: Successfully fetched all pandit users
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  statusCode:
+                    type: integer
+                    example: 200
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        _id:
+                          type: string
+                          example: "6424a5781234abcd5678efgh"
+                        name:
+                          type: string
+                          example: "John Doe"
+                        isPandit:
+                          type: boolean
+                          example: true
+                  message:
+                    type: string
+                    example: "Pandits Fetched successfully."
+        "500":
+          description: Server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  statusCode:
+                    type: integer
+                    example: 500
+                  message:
+                    type: string
+                    example: "Internal Server Error"
+                  error:
+                    type: string
+                    example: "Failed to fetch pandit users."
+
   /api/v1/kyp/fillKYP:
     post:
       summary: Fill KYP form for Pandit registration

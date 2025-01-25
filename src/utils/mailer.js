@@ -43,11 +43,9 @@ const sendVerificationEmail = async (transport, email, otp) => {
 
 export const sendEmail = async ({ email }) => {
   try {
-
     const transport = await createTransport();
-    const otp = `${Math.floor(1000 + Math.random() * 9000)}`;
+    const otp = `${Math.floor(100000 + Math.random() * 900000)}`;
     await OTP.deleteMany({ email });
-   
 
     // Send verification email
     await sendVerificationEmail(transport, email, otp);

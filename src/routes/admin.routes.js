@@ -6,6 +6,7 @@ import {
   getPujas,
   searchPuja,
   getSpecificPuja,
+  getAllPanditUsers,
 } from "../controllers/admin.controller.js";
 import { upload } from "../middlewares/multer.middleware.js";
 import verifyJWT from "../middlewares/auth.middleware.js";
@@ -20,5 +21,6 @@ router.get("/getPujas", getPujas);
 router.delete("/deletePuja/:id", deletePuja);
 router.get("/searchPuja", searchPuja);
 router.get("/getSpecificPuja/:id", getSpecificPuja);
+router.get("/getAllPanditUsers", getAllPanditUsers);
 
 export default router;
