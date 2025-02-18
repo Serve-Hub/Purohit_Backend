@@ -7,13 +7,12 @@ import { setupWebSocket } from "./config/websocket.js";
 const PORT = process.env.PORT;
 const server = http.createServer(app);
 
-let wss; 
+let wss;
 
 const startServer = async () => {
   try {
     // Database Connection
     await connectDB();
-    console.log("Connected to MongoDB successfully!");
 
     // Set up WebSocket with the HTTP server
     wss = setupWebSocket(server);

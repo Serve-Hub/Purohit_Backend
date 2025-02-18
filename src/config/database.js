@@ -10,7 +10,7 @@ const connectDB = async () => {
     await mongoose.connect(
       `mongodb+srv://${userName}:${password}@${host}/${dbName}?retryWrites=true&w=majority&appName=Kuber`
     );
-    console.log("Connection Successful..");
+    console.log("Connected to MongoDB successfully!");
   } catch (error) {
     console.log(error.message);
   }

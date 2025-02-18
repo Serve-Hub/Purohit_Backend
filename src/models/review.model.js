@@ -2,9 +2,19 @@ import { Schema, model } from "mongoose";
 
 const reviewSchema = new Schema(
   {
-    userID: {
+    user: {
       type: Schema.Types.ObjectId,
       ref: "User", // Reference to the User model
+      required: true,
+    },
+    pandit: {
+      type: Schema.Types.ObjectId,
+      ref: "User", // Reference to the User model
+      required: true,
+    },
+    puja: {
+      type: Schema.Types.ObjectId,
+      ref: "Puja", // Reference to the puja model
       required: true,
     },
     bookingID: {

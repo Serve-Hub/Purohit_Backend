@@ -23,6 +23,7 @@ const addPuja = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Puja Image is required.");
   }
   const pujaImage = await uploadOnCloudinary(pujaImageLocalPath);
+  console.log("Puja Image url is:", pujaImage.url);
   const puja = await Puja.create({
     adminID,
     pujaName,

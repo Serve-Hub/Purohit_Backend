@@ -7,6 +7,7 @@ import userRouter from "./routes/user.routes.js";
 import adminRouter from "./routes/admin.routes.js";
 import kypRouter from "./routes/kyp.routes.js";
 import bookingRouter from "./routes/booking.routes.js";
+import reviewRouter from "./routes/review.route.js";
 import swaggerUi from "swagger-ui-express";
 import YAML from "yamljs"; // Import YAML parser
 import path from "path";
@@ -59,6 +60,7 @@ app.use("/api/v1/users", userRouter);
 app.use("/api/v1/admin", adminRouter);
 app.use("/api/v1/kyp", kypRouter);
 app.use("/api/v1/booking", bookingRouter);
+app.use("/api/v1/review", reviewRouter);
 
 app.use((err, req, res, next) => {
   console.error(err);

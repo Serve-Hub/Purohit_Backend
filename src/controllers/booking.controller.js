@@ -309,6 +309,7 @@ const getAcceptedPandits = asyncHandler(async (req, res) => {
 });
 
 const choosePanditForPuja = asyncHandler(async (req, res) => {
+  console.log(req.body);
   const { bookingId, panditId } = req.body;
 
   if (!bookingId || !panditId) {
@@ -693,6 +694,30 @@ const checkPoojaBookingStatus = asyncHandler(async (req, res) => {
   });
 });
 
+const pujaStatusUpdate = asyncHandler(async (req, res) => {
+  const { bookingId } = req.params; // Pooja ID from the frontend
+  const userId = req.user._id; // Logged-in user's ID
+
+  // Check if the user has booked this pooja
+  const existingBooking = await Booking.findOne({
+    _id: bookingId,
+    status: { $ne: "Cancelled" },
+  });
+
+  if (existingBooking.status == "Completed") {
+    throw new ApiError(400, "Booking Already Completed.");
+  }
+  // if (existingBooking.status != "Accepted") {
+  //   throw new ApiError(400, "Booking not Accepted.");
+  // }
+  existingBooking.status = "Completed";
+  await existingBooking.save();
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, {}, "Bookings Completed successfully."));
+});
+
 export {
   createBooking,
   viewNotification,
@@ -705,4 +730,5 @@ export {
   viewPanditBooking,
   checkPoojaBookingStatus,
   rejectPanditForPuja,
+  pujaStatusUpdate,
 };

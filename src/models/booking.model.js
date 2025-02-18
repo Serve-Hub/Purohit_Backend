@@ -12,11 +12,6 @@ const bookingSchema = new Schema(
       ref: "Puja", // Reference to the puja model
       required: true,
     },
-    panditID: {
-      type: Schema.Types.ObjectId,
-      ref: "User", // Reference to the Pandit user, since they also use the User model
-      // required: true,
-    },
     selectedPandit: {
       type: [Schema.Types.ObjectId],
       ref: "User", // Reference to the pandit the user selects

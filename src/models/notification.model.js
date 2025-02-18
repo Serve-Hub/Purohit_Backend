@@ -29,6 +29,7 @@ const notificationSchema = new Schema(
         "Payment",
         "Reminder",
         "General",
+        "Review",
       ],
       default: "General",
     },
@@ -38,7 +39,7 @@ const notificationSchema = new Schema(
     },
     relatedModel: {
       type: String,
-      enum: ["Booking", "Pooja"], // Dynamically reference related models
+      enum: ["Booking", "Pooja", "Review"], // Dynamically reference related models
     },
     status: {
       type: String,
