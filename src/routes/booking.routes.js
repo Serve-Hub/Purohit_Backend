@@ -12,6 +12,7 @@ import {
   checkPoojaBookingStatus,
   viewPanditBooking,
   rejectPanditForPuja,
+  panditDetails,
   pujaStatusUpdate,
 } from "../controllers/booking.controller.js";
 
@@ -57,5 +58,7 @@ router.post("/bookings/accepted-pandits/rejectPandit", rejectPanditForPuja);
 
 //booking completed
 router.put("/bookings/pujaStatusUpdate/:bookingId", pujaStatusUpdate);
+
+router.put("/panditDetails/:panditId", panditDetails);
 
 export default router;

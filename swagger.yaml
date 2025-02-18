@@ -2000,6 +2000,67 @@ paths:
         403:
           description: Unauthorized to update the booking status.
 
+  /api/v1/booking/panditDetails/{panditId}:
+    put:
+      summary: Retrieve details of a Pandit
+      tags:
+        - "Booking"
+      description: Returns the total number of completed Pujas, reviews, average ratings, and total raters for a specific Pandit.
+      parameters:
+        - in: path
+          name: panditId
+          required: true
+          description: The ID of the Pandit to retrieve details for
+          schema:
+            type: string
+            format: objectId
+      responses:
+        '200':
+          description: Successful retrieval of Pandit details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 200
+                  data:
+                    type: object
+                    properties:
+                      totalPujas:
+                        type: integer
+                        example: 50
+                      avegrageRating:
+                        type: object
+                        properties:
+                          _id:
+                            type: string
+                            example: "60c72b2f9f1b2c001f8c3a62"
+                          averageRating:
+                            type: number
+                            format: float
+                            example: 4.5
+                          totalReviews:
+                            type: integer
+                            example: 100
+                      totalRaters:
+                        type: integer
+                        example: 80
+                      totalReviews:
+                        type: integer
+                        example: 100
+                  message:
+                    type: string
+                    example: "Booking information retrieved."
+        '400':
+          description: Bad Request, invalid panditId
+        '404':
+          description: Pandit not found
+        '500':
+          description: Internal Server Error
+
+
   /api/v1/review/addReview:
     post:
       summary: Add a new review for a Pandit.
@@ -2129,6 +2190,7 @@ paths:
                     description: Total number of reviews.
         400:
           description: Invalid Pandit ID.
+
 
 security:
   - bearerAuth: []

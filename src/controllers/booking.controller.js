@@ -10,6 +10,8 @@ import {
   sendNotificationToSpecificUser,
 } from "../services/notification.service.js";
 import Notification from "../models/notification.model.js";
+import Review from "../models/review.model.js";
+import mongoose from "mongoose";
 
 const createBooking = asyncHandler(async (req, res) => {
   const { date, time, province, district, municipality, tollAddress } =
@@ -716,6 +718,46 @@ const pujaStatusUpdate = asyncHandler(async (req, res) => {
   return res
     .status(200)
     .json(new ApiResponse(200, {}, "Bookings Completed successfully."));
+});
+
+export const panditDetails = asyncHandler(async (req, res) => {
+  const { panditId } = req.params;
+
+  // Count the number of bookings where the pandit is in acceptedPandit and status is "Completed"
+  const totalPujas = await Booking.countDocuments({
+    selectedPandit: panditId,
+    status: "Completed",
+  });
+
+  const totalReviews = await Review.countDocuments({
+    pandit: panditId,
+  });
+
+  // Count total number of ratings given to the pandit
+  const avegrageRating = await Review.aggregate([
+    { $match: { pandit: new mongoose.Types.ObjectId(panditId) } }, // Filter by Pandit ID
+    {
+      $group: {
+        _id: "$pandit",
+        averageRating: { $avg: "$rating" }, // Calculate average rating
+        totalReviews: { $sum: 1 }, // Count total reviews
+      },
+    },
+  ]);
+
+  const totalRaters = await Review.countDocuments({
+    pandit: panditId,
+    rating: { $exists: true },
+  });
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        { totalPujas, avegrageRating, totalRaters, totalReviews },
+        "Booking information retrived."
+      )
+    );
 });
 
 export {
