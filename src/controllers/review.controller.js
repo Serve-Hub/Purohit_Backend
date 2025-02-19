@@ -6,6 +6,7 @@ import ApiError from "../utils/ApiError.js";
 import ApiResponse from "../utils/ApiResponse.js";
 import Review from "../models/review.model.js";
 import { sendNotificationToSpecificUser } from "../services/notification.service.js";
+import mongoose from "mongoose";
 
 export const addReview = asyncHandler(async (req, res) => {
   const { panditId, pujaId, bookingId, rating, reviewText } = req.body;

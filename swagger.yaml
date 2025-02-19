@@ -2107,7 +2107,7 @@ paths:
           description: Unauthorized to review.
 
   /api/v1/review/getPanditReviews/{panditId}:
-    get:
+    put:
       summary: Get all reviews for a specific Pandit with pagination.
       tags:
         - "Review"
@@ -2161,7 +2161,7 @@ paths:
           description: Invalid Pandit ID.
 
   /api/v1/review/getAverageRating/{panditId}:
-    get:
+    put:
       summary: Get the average rating for a specific Pandit.
       tags:
         - "Review"
