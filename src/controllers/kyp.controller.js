@@ -167,7 +167,11 @@ const updateKYPStatus = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Invalid KYP ID");
   }
 
-  const { status } = req.body;
+  const { status, message } = req.body;
+
+  if (!status) {
+    throw new ApiError(400, "Status is required");
+  }
   const kyp = await KYP.findByIdAndUpdate(
     kypID,
     { status },
@@ -180,8 +184,27 @@ const updateKYPStatus = asyncHandler(async (req, res) => {
   if (!user) {
     throw new ApiError(404, "User not found");
   }
-  user.isPandit = true;
-  await user.save();
+
+  let notificationMessage = "";
+
+  if (status === "Accepted") {
+    user.isPandit = true;
+    await user.save();
+    notificationMessage =
+      "Congratulations! Your KYP request has been accepted. You are now a registered Pandit.";
+  } else if (status === "Rejected") {
+    notificationMessage = `Your KYP request has been rejected. Reason: ${message}`;
+  }
+
+  const notificationData = {
+    receiverID: user._id,
+    senderID: req.user._id,
+    message: notificationMessage,
+    type: "General",
+  };
+
+  await sendNotificationToSpecificUser(user._id, notificationData);
+
   return res.status(200).json(new ApiResponse(200, kyp, "KYP status updated"));
 });
 

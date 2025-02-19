@@ -1306,36 +1306,62 @@ paths:
         - bearerAuth: []
 
   /api/v1/kyp/updateKYPStatus/{id}:
-    put:
-      summary: Update the status of a KYP
+    patch:
+      summary: Update the status of a KYP request
+      description: Updates the KYP request status and notifies the user accordingly.
       tags:
         - KYP
       parameters:
-        - in: path
-          name: id
+        - name: id
+          in: path
           required: true
+          description: The ID of the KYP request to update
           schema:
             type: string
-          description: KYP ID
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
+              required:
+                - "status"
               properties:
                 status:
                   type: string
-                  description: New status of the KYP
+                  enum: [Accepted, Rejected]
+                  description: The new status of the KYP request
+                message:
+                  type: string
+                  description: The reason for rejection (if applicable)
       responses:
-        200:
-          description: Status updated successfully
+        "200":
+          description: KYP status updated successfully
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ApiResponse"
-      security:
-        - bearerAuth: []
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 200
+                  data:
+                    $ref: "#/components/schemas/KYP"
+                  message:
+                    type: string
+                    example: "KYP status updated"
+        "400":
+          description: Bad request due to invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: KYP request or user not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 
   /api/v1/booking/bookings/{pujaId}:
     post:
