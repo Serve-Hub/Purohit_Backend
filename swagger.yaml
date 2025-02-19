@@ -2015,7 +2015,7 @@ paths:
             type: string
             format: objectId
       responses:
-        '200':
+        "200":
           description: Successful retrieval of Pandit details
           content:
             application/json:
@@ -2053,13 +2053,12 @@ paths:
                   message:
                     type: string
                     example: "Booking information retrieved."
-        '400':
+        "400":
           description: Bad Request, invalid panditId
-        '404':
+        "404":
           description: Pandit not found
-        '500':
+        "500":
           description: Internal Server Error
-
 
   /api/v1/review/addReview:
     post:
@@ -2191,6 +2190,65 @@ paths:
         400:
           description: Invalid Pandit ID.
 
+  /api/v1/review/checkReviewed/{panditId}:
+    put:
+      summary: Check if the user has reviewed a Pandit
+      description: This endpoint checks whether the authenticated user has already reviewed a specific Pandit.
+      tags:
+        - Reviews
+      parameters:
+        - in: path
+          name: panditId
+          required: true
+          schema:
+            type: string
+          description: The ID of the Pandit to check for reviews.
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for user authentication.
+      responses:
+        "200":
+          description: Successfully checked review status.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  reviewed:
+                    type: boolean
+                    description: Indicates if the user has already reviewed the Pandit.
+                  data:
+                    type: object
+                    nullable: true
+                    description: The existing review data if available.
+                  message:
+                    type: string
+                    example: "User has already reviewed this Pandit."
+        "401":
+          description: Unauthorized. User must be logged in.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Unauthorized access."
+        "500":
+          description: Server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Server error."
+                  error:
+                    type: string
 
 security:
   - bearerAuth: []

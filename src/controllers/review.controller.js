@@ -55,7 +55,7 @@ export const addReview = asyncHandler(async (req, res) => {
   const notificationData = {
     senderID: req.user._id,
     receiverID: panditId,
-    message: `User ${req.user.firstName} provided you a review.`,
+    message: `User ${req.user.firstName} provided you  review and rating.`,
     type: "Review",
     relatedId: newReview._id,
     relatedModel: "Review",
@@ -152,4 +152,26 @@ export const getAverageRating = asyncHandler(async (req, res) => {
       "Average rating retrieved successfully"
     )
   );
+});
+
+export const checkReviewed = asyncHandler(async (req, res) => {
+  const { panditId } = req.params;
+  const userId = req.user._id;
+
+  const existingReview = await Review.findOne({
+    pandit: panditId,
+    user: userId,
+  });
+
+  if (existingReview) {
+    return res.status(200).json({
+      reviewed: true,
+      data: existingReview,
+      message: "User has already reviewed this Pandit.",
+    });
+  }
+  res.status(200).json({
+    reviewed: false,
+    message: "User has not reviewed this Pandit yet.",
+  });
 });
