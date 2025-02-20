@@ -188,12 +188,12 @@ const updateKYPStatus = asyncHandler(async (req, res) => {
 
   let notificationMessage = "";
 
-  if (status === "Accepted") {
+  if (status === "accepted") {
     user.isPandit = true;
     await user.save();
     notificationMessage =
       "Congratulations! Your KYP request has been accepted. You are now a registered Pandit.";
-  } else if (status === "Rejected") {
+  } else if (status === "rejected") {
     notificationMessage = `Your KYP request has been rejected. Reason: ${message}`;
   }
 
