@@ -41,7 +41,7 @@ const createBooking = asyncHandler(async (req, res) => {
     userID: userID,
   });
 
-  if (existingBooking) {
+  if (existingBooking.status != "Completed") {
     throw new ApiError(400, "You have  already booked this puja.");
   }
 
@@ -579,12 +579,12 @@ const viewUserBooking = asyncHandler(async (req, res) => {
         .lean()
     : [];
 
-  // console.log("Pandit KYP Details ", panditKypDetails); // Check the final map after reduction
+  console.log("Pandit KYP Details ", panditKypDetails); // Check the final map after reduction
   const panditDetailsMap = panditKypDetails.reduce((acc, kyp) => {
     acc[kyp.panditID._id.toString()] = kyp; // Store KYP details in a map using panditID
     return acc;
   }, {});
-
+  console.log("pandit Details Map ", panditDetailsMap);
   // Combine bookings and panditKypDetails into a new structure
   const bookingsWithPanditDetails = bookings.map((booking) => {
     const selectedPanditWithKYP = booking.selectedPandit.map((panditId) => {

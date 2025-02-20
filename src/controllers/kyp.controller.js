@@ -5,6 +5,7 @@ import ApiResponse from "../utils/ApiResponse.js";
 import KYP from "../models/kyp.model.js";
 import mongoose from "mongoose";
 import uploadOnCloudinary from "../utils/cloudinary.js";
+import { sendNotificationToSpecificUser } from "../services/notification.service.js";
 
 const fillKYP = asyncHandler(async (req, res) => {
   const {
