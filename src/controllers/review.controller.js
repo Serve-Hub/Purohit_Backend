@@ -25,11 +25,15 @@ export const addReview = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Booking must be completed to give review.");
   }
 
+  const pujaInfo = await Puja.findById(booking.pujaID);
+  if (!pujaInfo) {
+    throw new ApiError(404, "Puja not found");
+  }
   const pandit = await User.findById(panditId);
   if (!pandit) {
     throw new ApiError(400, "User not found.");
   }
-  console.log(booking.userID, user._id);
+
   if (booking.userID.toString() !== user._id.toString()) {
     throw new ApiError(403, "Unauthorized to review .");
   }
@@ -64,6 +68,7 @@ export const addReview = asyncHandler(async (req, res) => {
   await sendNotificationToSpecificUser(
     panditId,
     notificationData,
+    pujaInfo,
     booking,
     req.user
   );

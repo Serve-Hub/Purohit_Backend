@@ -235,192 +235,23 @@ const searchPuja = asyncHandler(async (req, res) => {
 const getAllPanditUsers = async (req, res) => {
   // Fetch users whose isPandit field is true
   const panditUsers = await User.find({ isPandit: true });
+  
+  // Count the number of pandit users
+  const panditCount = panditUsers.length;
   // Return the list of pandit users
   res
     .status(200)
-    .json(new ApiResponse(200, panditUsers, "Pandits Fetched successfully."));
+    .json(
+      new ApiResponse(
+        200,
+        { panditUsers, panditCount },
+        "Pandits Fetched successfully."
+      )
+    );
 };
-// const getAllVideos = asyncHandler(async (req, res) => {
-//   const page = req.query.page || 1;
-//   const limit = req.query.limit || 3;
-//   const query = req.query.query || "";
-//   const sortType = req.query.sort || "asc";
-//   const sortBy = req.query.sortBy || "createdAt";
-//   //query ma kehi napathauda
-//   const pageNumber = parseInt(page);
-//   const limitNumber = parseInt(limit);
-//   const sort = sortType === "asc" ? 1 : -1;
 
-//   console.log(
-//     "sabai parameters" +
-//       "page is" +
-//       page +
-//       "limit is" +
-//       limit +
-//       "query is" +
-//       query +
-//       "sorttype is" +
-//       sort +
-//       "sortby is" +
-//       sortBy,
-//     pageNumber,
-//     limitNumber
-//   );
+const getTop5Pandits = asyncHandler(async (req, res) => {});
 
-//   const matchStage = query ? { title: { $regex: query, $options: "i" } } : {}; //$options:i for case insesitive
-//   //  extra double quotes should not be included in the regex pattern, which can cause  query to not find any matches in the database.
-//   console.log("matchstage", matchStage);
-
-//   const result = await videoModel.aggregate([
-//     {
-//       $match: matchStage,
-//     },
-//     {
-//       $sort: { [sortBy]: sort }, // Sort based on the provided field and order. Use square brackets when you want to dynamically assign an object key based on a variable’s value.
-//     },
-//     {
-//       $skip: (pageNumber - 1) * limitNumber, // Skip the results for previous pages
-//     },
-//     {
-//       $limit: limitNumber, // Limit the results to the specified page size
-//     },
-//     {
-//       $lookup: {
-//         from: "users",
-//         localField: "owner",
-//         foreignField: "_id",
-//         as: "result",
-//       },
-//     },
-//   ]);
-
-//   console.log("return videos", result);
-//   if (result.length === 0) {
-//     //array return garxa ,ani empty pani huna sakxa
-//     throw new ApiError(404, "No videos found matching the query");
-//   }
-//   console.log("legnth is", result.length);
-//   const totalCount = result.length;
-
-//   if (!totalCount) {
-//     throw new ApiError(404, "error in counting values");
-//   }
-//   if (!result) {
-//     throw new ApiError(400, "there was error in retrieving the video data");
-//   }
-//   return res
-//     .status(200)
-//     .json(
-//       new ApiResponse(
-//         200,
-//         { result, totalCount },
-//         "video retrieved succesfully"
-//       )
-//     );
-// });
-// const getPujas = asyncHandler(async (req, res) => {
-//   const page = req.query.page || 1;
-//   const limit = req.query.limit || 10;
-//   const category = req.query.category || "";
-//   const minPrice = req.query.minPrice || 0;
-//   const maxPrice = req.query.maxPrice || Infinity;
-//   const minDuration = req.query.minDuration || 0;
-//   const maxDuration = req.query.maxDuration || Infinity;
-//   const sortType = req.query.sort || "asc";
-//   const sortBy = req.query.sortBy || "createdAt";
-
-//   // Pagination setup
-//   const pageNumber = parseInt(page);
-//   const limitNumber = parseInt(limit);
-//   const sort = sortType === "asc" ? 1 : -1;
-
-//   // console.log(
-//   //   "All parameters: " +
-//   //   "page is " +
-//   //   page +
-//   //   " | limit is " +
-//   //   limit +
-//   //   " | category is " +
-//   //   category +
-//   //   " | minPrice is " +
-//   //   minPrice +
-//   //   " | maxPrice is " +
-//   //   maxPrice +
-//   //   " | minDuration is " +
-//   //   minDuration +
-//   //   " | maxDuration is " +
-//   //   maxDuration +
-//   //   " | sortType is " +
-//   //   sortType +
-//   //   " | sortBy is " +
-//   //   sortByRemove unnecessary blank line in admin.routes.js; add console logs for debugging in auth.middleware.js
-//   // );
-
-//   // Construct dynamic filter query based on the parameters
-//   const filterQuery = {};
-//   if (category) filterQuery.category = category;
-//   if (minPrice || maxPrice) {
-//     filterQuery.baseFare = {};
-//     if (minPrice) filterQuery.baseFare.$gte = minPrice;
-//     if (maxPrice) filterQuery.baseFare.$lte = maxPrice;
-//   }
-//   if (minDuration || maxDuration) {
-//     filterQuery.duration = {};
-//     if (minDuration) filterQuery.duration.$gte = minDuration;
-//     if (maxDuration) filterQuery.duration.$lte = maxDuration;
-//   }
-
-//   // console.log("filterQuery:", filterQuery);
-
-//   // Aggregation query
-//   const result = await Puja.aggregate([
-//     {
-//       $match: filterQuery, // Filter based on the query
-//     },
-//     {
-//       $sort: { [sortBy]: sort }, // Sorting based on the provided field and order
-//     },
-//     {
-//       $skip: (pageNumber - 1) * limitNumber, // Skip results for previous pages
-//     },
-//     {
-//       $limit: limitNumber, // Limit results to the specified page size
-//     },
-//     {
-//       $lookup: {
-//         from: "users",
-//         localField: "owner",
-//         foreignField: "_id",
-//         as: "ownerDetails",
-//       },
-//     },
-//   ]);
-
-//   // console.log("Returned pujas:", result);
-
-//   if (result.length === 0) {
-//     throw new ApiError(404, "No pujas found matching the query");
-//   }
-
-//   const totalCount = await Puja.countDocuments(filterQuery); // Count total pujas after applying filters
-
-//   if (!totalCount) {
-//     throw new ApiError(404, "Error in counting pujas");
-//   }
-
-//   return res.status(200).json(
-//     new ApiResponse(
-//       200,
-//       {
-//         result,
-//         totalCount,
-//         totalPages: Math.ceil(totalCount / limitNumber),
-//         currentPage: pageNumber,
-//       },
-//       "Pujas retrieved successfully"
-//     )
-//   );
-// });
 export {
   addPuja,
   editPuja,
