@@ -40,9 +40,10 @@ const createBooking = asyncHandler(async (req, res) => {
     pujaID: pujaId,
     userID: userID,
   });
-
-  if (existingBooking.status != "Completed") {
-    throw new ApiError(400, "You have  already booked this puja.");
+  if (existingBooking) {
+    if (existingBooking.status != "Completed") {
+      throw new ApiError(400, "You have  already booked this puja.");
+    }
   }
 
   const booking = new Booking({
