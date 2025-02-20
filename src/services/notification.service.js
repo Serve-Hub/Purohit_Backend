@@ -26,15 +26,20 @@ const sendNotificationToSpecificUser = async (
     const savedNotification = await saveNotificationToDatabase(
       notificationData
     );
-    const finalNotification = {
-      ...savedNotification.toObject(), // Use toObject to convert the Mongoose document to plain object
-      pujaInfo,
-      bookingInfo,
-      userInfo,
-    };
-    const finalNotificationArray = Object.keys(finalNotification).map((key) => {
-      return { [key]: finalNotification[key] };
-    });
+    let finalNotificationArray;
+    if (pujaInfo && bookingInfo && userInfo) {
+      const finalNotification = {
+        ...savedNotification.toObject(), // Use toObject to convert the Mongoose document to plain object
+        pujaInfo,
+        bookingInfo,
+        userInfo,
+      };
+      finalNotificationArray = Object.keys(finalNotification).map((key) => {
+        return { [key]: finalNotification[key] };
+      });
+    } else {
+      finalNotificationArray = notificationData;
+    }
     // Step 2: Send the notification to the specific user via WebSocket
     wss.sendNotificationToSpecificUser(targetUserId, finalNotificationArray);
   } catch (error) {
