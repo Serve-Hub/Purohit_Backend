@@ -209,6 +209,11 @@ const acceptNotification = asyncHandler(async (req, res) => {
   const booking = await Booking.findById(notification.relatedId);
   if (!booking) throw new ApiError(404, "Booking not found.");
 
+  const pujaInfo = await Puja.findById(booking.pujaID);
+  if (!pujaInfo) {
+    throw new ApiError(404, "Puja not found");
+  }
+
   const user = await User.findById(booking.userID);
   if (!user) throw new ApiError(404, "User not found.");
 
@@ -227,6 +232,7 @@ const acceptNotification = asyncHandler(async (req, res) => {
   await sendNotificationToSpecificUser(
     user._id,
     notificationData,
+    pujaInfo,
     booking,
     req.user
   );
@@ -325,6 +331,11 @@ const choosePanditForPuja = asyncHandler(async (req, res) => {
   if (booking.userID.toString() !== req.user._id.toString()) {
     throw new ApiError(403, "Unauthorized access.");
   }
+  const pujaInfo = await Puja.findById(booking.pujaID);
+
+  if (!pujaInfo) {
+    throw new ApiError(404, "Puja not found");
+  }
 
   // Edge Case 4: Check if the pandit is in the acceptedPandit list
   if (
@@ -363,6 +374,7 @@ const choosePanditForPuja = asyncHandler(async (req, res) => {
   await sendNotificationToSpecificUser(
     panditId,
     notificationData,
+    pujaInfo,
     booking,
     req.user
   );
@@ -580,7 +592,6 @@ const viewUserBooking = asyncHandler(async (req, res) => {
         .lean()
     : [];
 
-  console.log("Pandit KYP Details ", panditKypDetails); // Check the final map after reduction
   const panditDetailsMap = panditKypDetails.reduce((acc, kyp) => {
     acc[kyp.panditID._id.toString()] = kyp; // Store KYP details in a map using panditID
     return acc;
