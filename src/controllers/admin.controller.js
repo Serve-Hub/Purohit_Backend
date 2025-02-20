@@ -235,7 +235,7 @@ const searchPuja = asyncHandler(async (req, res) => {
 const getAllPanditUsers = async (req, res) => {
   // Fetch users whose isPandit field is true
   const panditUsers = await User.find({ isPandit: true });
-  
+
   // Count the number of pandit users
   const panditCount = panditUsers.length;
   // Return the list of pandit users
@@ -250,7 +250,104 @@ const getAllPanditUsers = async (req, res) => {
     );
 };
 
-const getTop5Pandits = asyncHandler(async (req, res) => {});
+const getTop5Pandits = asyncHandler(async (req, res) => {
+  // Aggregate the average rating for each pandit
+  const topPandits = await Review.aggregate([
+    {
+      $group: {
+        _id: "$pandit", // Group by pandit ID
+        averageRating: { $avg: "$rating" }, // Calculate average rating
+        reviewCount: { $sum: 1 }, // Count the number of reviews
+      },
+    },
+    { $sort: { averageRating: -1, reviewCount: -1 } }, // Sort by rating and then by review count
+    { $limit: 5 }, // Get the top 5
+  ]);
+
+  // Populate the pandit details
+  const panditDetails = await User.find({
+    _id: { $in: topPandits.map((p) => p._id) },
+    isPandit: true,
+  }).select("firstName lastName avatar bio");
+
+  // Combine pandit details with their respective ratings
+  const topPanditWithRatings = panditDetails.map((pandit) => {
+    const ratingInfo = topPandits.find(
+      (p) => p._id.toString() === pandit._id.toString()
+    );
+    return {
+      ...pandit.toObject(),
+      averageRating: ratingInfo ? ratingInfo.averageRating : 0,
+      reviewCount: ratingInfo ? ratingInfo.reviewCount : 0,
+    };
+  });
+
+  res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        topPanditWithRatings,
+        "Top 5 Pandits fetched successfully."
+      )
+    );
+});
+
+const getTop5Pujas = asyncHandler(async (req, res) => {
+  // Aggregate the number of completed bookings for each puja
+  const topPujas = await Booking.aggregate([
+    { $match: { status: "Completed" } }, // Only count completed bookings
+    {
+      $group: {
+        _id: "$pujaID", // Group by puja ID
+        bookingCount: { $sum: 1 }, // Count the number of bookings
+      },
+    },
+    { $sort: { bookingCount: -1 } }, // Sort by booking count in descending order
+    { $limit: 5 }, // Get the top 5
+  ]);
+
+  // Populate the puja details
+  const pujaDetails = await Puja.find({
+    _id: { $in: topPujas.map((p) => p._id) },
+  }).select("pujaName pujaImage category baseFare description");
+
+  // Combine puja details with their respective booking counts
+  const topPujasWithCount = pujaDetails.map((puja) => {
+    const bookingInfo = topPujas.find(
+      (p) => p._id.toString() === puja._id.toString()
+    );
+    return {
+      ...puja.toObject(),
+      bookingCount: bookingInfo ? bookingInfo.bookingCount : 0,
+    };
+  });
+
+  res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        topPujasWithCount,
+        "Top 5 Pujas fetched successfully."
+      )
+    );
+});
+
+const getTotalBookings = asyncHandler(async (req, res) => {
+  // Count the total number of bookings
+  const totalBookings = await Booking.countDocuments();
+
+  res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        { totalBookings },
+        "Total bookings fetched successfully."
+      )
+    );
+});
 
 export {
   addPuja,
@@ -260,4 +357,7 @@ export {
   searchPuja,
   getSpecificPuja,
   getAllPanditUsers,
+  getTop5Pandits,
+  getTop5Pujas,
+  getTotalBookings,
 };
