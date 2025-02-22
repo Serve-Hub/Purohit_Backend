@@ -319,6 +319,7 @@ const getAcceptedPandits = asyncHandler(async (req, res) => {
 
 const choosePanditForPuja = asyncHandler(async (req, res) => {
   const { bookingId, panditId } = req.body;
+  console.log(panditId);
 
   if (!bookingId || !panditId) {
     throw new ApiError(400, "Both bookingId and panditId are required.");

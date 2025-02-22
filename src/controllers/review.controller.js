@@ -160,27 +160,33 @@ export const getAverageRating = asyncHandler(async (req, res) => {
 });
 
 export const checkReviewed = asyncHandler(async (req, res) => {
-  const { panditId, bookingId } = req.params;
-
-  const userId = req.user._id;
-
-  const existingReview = await Review.findOne({
-    pandit: panditId,
-    user: userId,
-    bookingID: bookingId,
-  });
-
-  console.log(existingReview);
-
-  if (existingReview) {
-    return res.status(200).json({
-      reviewed: true,
-      data: existingReview,
-      message: "User has already reviewed this Pandit.",
+  try {
+    let { panditId, bookingId } = req.params;
+    const userId = req.user._id;
+    console.log("panditId", panditId);
+    console.log("bookingId", bookingId);
+    const existingReview = await Review.findOne({
+      pandit: panditId,
+      user: userId,
+      bookingID: bookingId,
     });
+
+    console.log("Found Review:", existingReview);
+
+    if (existingReview) {
+      return res.status(200).json({
+        reviewed: true,
+        data: existingReview,
+        message: "User has already reviewed this Pandit.",
+      });
+    }
+
+    res.status(200).json({
+      reviewed: false,
+      message: "User has not reviewed this Pandit yet.",
+    });
+  } catch (error) {
+    console.error("Error in checkReviewed:", error);
+    res.status(500).json({ message: "Internal Server Error", error });
   }
-  res.status(200).json({
-    reviewed: false,
-    message: "User has not reviewed this Pandit yet.",
-  });
 });
