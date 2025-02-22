@@ -2205,7 +2205,7 @@ paths:
     put:
       summary: Retrieve details of a Pandit
       tags:
-        - "Booking"
+        - "Bookings"
       description: Returns the total number of completed Pujas, reviews, average ratings, and total raters for a specific Pandit.
       parameters:
         - in: path
@@ -2396,7 +2396,7 @@ paths:
       summary: Check if the user has reviewed a Pandit
       description: This endpoint checks whether the authenticated user has already reviewed a specific Pandit.
       tags:
-        - Reviews
+        - Review
       parameters:
         - in: path
           name: panditId
