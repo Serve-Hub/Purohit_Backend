@@ -41,6 +41,7 @@ export const addReview = asyncHandler(async (req, res) => {
   const existingReview = await Review.findOne({
     bookingID: bookingId,
     user: user._id,
+    pandit: panditId,
   });
   if (existingReview) {
     throw new ApiError(400, "You have already reviewed this Pandit.");
