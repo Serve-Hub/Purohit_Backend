@@ -2391,7 +2391,7 @@ paths:
         400:
           description: Invalid Pandit ID.
 
-  /api/v1/review/checkReviewed/{panditId}:
+  /api/v1/review/checkReviewed/{bookingId}/{panditId}:
     put:
       summary: Check if the user has reviewed a Pandit
       description: This endpoint checks whether the authenticated user has already reviewed a specific Pandit.
