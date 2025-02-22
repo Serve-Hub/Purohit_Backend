@@ -774,17 +774,50 @@ export const panditDetails = asyncHandler(async (req, res) => {
 export const cancelBooking = asyncHandler(async (req, res) => {
   const { bookingId } = req.params;
 
+  // Find the booking by ID
   const booking = await Booking.findById(bookingId);
   if (!booking) {
     throw new ApiError(404, "Booking not found");
   }
 
-  if (booking.status == "Completed") {
+  // Check if the booking is already completed
+  if (booking.status === "Completed") {
     throw new ApiError(400, "Booking is already Completed");
   }
 
+  // Change the booking status to "Cancelled"
   booking.status = "Cancelled";
   await booking.save();
+
+  // Fetch the related puja information
+  const pujaInfo = await Puja.findById(booking.pujaID);
+  if (!pujaInfo) {
+    throw new ApiError(404, "Puja not found");
+  }
+
+  // Notify all the pandits in the selectedPandit array
+  for (const panditId of booking.selectedPandit) {
+    const pandit = await User.findById(panditId);
+    if (pandit) {
+      const notificationData = {
+        senderID: req.user._id,
+        receiverID: panditId,
+        message: `User ${req.user.firstName} cancelled the booking for ${pujaInfo.name}.`,
+        type: "Booking Cancellation",
+        relatedId: booking._id,
+        relatedModel: "Booking",
+      };
+
+      // Send notification to each selected pandit
+      await sendNotificationToSpecificUser(
+        panditId,
+        notificationData,
+        pujaInfo,
+        booking,
+        req.user
+      );
+    }
+  }
 
   return res
     .status(200)

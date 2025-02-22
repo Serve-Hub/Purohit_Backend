@@ -25,6 +25,7 @@ const notificationSchema = new Schema(
       enum: [
         "Booking Request",
         "Booking Acceptance",
+        "Booking Cancellation",
         "Booking Selection",
         "Payment",
         "Reminder",
