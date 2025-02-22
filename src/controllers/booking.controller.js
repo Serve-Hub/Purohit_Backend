@@ -318,7 +318,6 @@ const getAcceptedPandits = asyncHandler(async (req, res) => {
 });
 
 const choosePanditForPuja = asyncHandler(async (req, res) => {
-  console.log(req.body);
   const { bookingId, panditId } = req.body;
 
   if (!bookingId || !panditId) {
@@ -770,6 +769,26 @@ export const panditDetails = asyncHandler(async (req, res) => {
         "Booking information retrived."
       )
     );
+});
+
+export const cancelBooking = asyncHandler(async (req, res) => {
+  const { bookingId } = req.params;
+
+  const booking = await Booking.findById(bookingId);
+  if (!booking) {
+    throw new ApiError(404, "Booking not found");
+  }
+
+  if (booking.status == "Completed") {
+    throw new ApiError(400, "Booking is already Completed");
+  }
+
+  booking.status = "Cancelled";
+  await booking.save();
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, {}, "Booking cancelled successfully."));
 });
 
 export {

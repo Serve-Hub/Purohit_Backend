@@ -14,6 +14,7 @@ import {
   rejectPanditForPuja,
   panditDetails,
   pujaStatusUpdate,
+  cancelBooking,
 } from "../controllers/booking.controller.js";
 
 const router = Router();
@@ -60,5 +61,7 @@ router.post("/bookings/accepted-pandits/rejectPandit", rejectPanditForPuja);
 router.put("/bookings/pujaStatusUpdate/:bookingId", pujaStatusUpdate);
 
 router.put("/panditDetails/:panditId", panditDetails);
+
+router.put("/bookigs/cancelBooking", cancelBooking);
 
 export default router;

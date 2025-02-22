@@ -2147,6 +2147,60 @@ paths:
         403:
           description: Unauthorized to update the booking status.
 
+  /api/v1/booking/bookings/cancelBooking/{bookingId}:
+    put:
+      summary: Cancel a booking
+      description: Cancels a booking by updating its status to "Cancelled".
+      tags:
+        - Bookings
+      parameters:
+        - name: bookingId
+          in: path
+          required: true
+          description: ID of the booking to be cancelled
+          schema:
+            type: string
+      responses:
+        200:
+          description: Booking cancelled successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 200
+                  message:
+                    type: string
+                    example: Booking cancelled successfully.
+        400:
+          description: Bad request - Booking is already completed.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 400
+                  message:
+                    type: string
+                    example: Booking is already Completed
+        404:
+          description: Booking not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 404
+                  message:
+                    type: string
+                    example: Booking not found
+
   /api/v1/booking/panditDetails/{panditId}:
     put:
       summary: Retrieve details of a Pandit
