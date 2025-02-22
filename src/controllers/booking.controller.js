@@ -372,9 +372,22 @@ const choosePanditForPuja = asyncHandler(async (req, res) => {
     throw new ApiError(400, "The selected pandit has already been chosen.");
   }
 
-  // Update the booking to reflect that the user has selected the pandit
-  booking.acceptedPandit.pop(panditId);
+  console.log("Before operation:");
+  console.log("Accepted Pandits:", booking.acceptedPandit);
+  console.log("Selected Pandits:", booking.selectedPandit);
+
+  // Remove the specific panditId from acceptedPandit array
+  booking.acceptedPandit = booking.acceptedPandit.filter(
+    (pandit) => pandit.toString() !== panditId.toString()
+  );
+
+  // Push the panditId to selectedPandit array
   booking.selectedPandit.push(panditId);
+
+  console.log("After operation:");
+  console.log("Accepted Pandits:", booking.acceptedPandit);
+  console.log("Selected Pandits:", booking.selectedPandit);
+
   booking.panditAcceptedCount += 1;
   await booking.save();
 
