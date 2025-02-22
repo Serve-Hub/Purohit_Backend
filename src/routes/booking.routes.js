@@ -62,6 +62,6 @@ router.put("/bookings/pujaStatusUpdate/:bookingId", pujaStatusUpdate);
 
 router.put("/panditDetails/:panditId", panditDetails);
 
-router.put("/bookigs/cancelBooking", cancelBooking);
+router.put("/bookigs/cancelBooking/:bookingId", cancelBooking);
 
 export default router;

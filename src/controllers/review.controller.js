@@ -160,12 +160,13 @@ export const getAverageRating = asyncHandler(async (req, res) => {
 });
 
 export const checkReviewed = asyncHandler(async (req, res) => {
-  const { panditId } = req.params;
+  const { panditId, bookingId } = req.params;
   const userId = req.user._id;
 
   const existingReview = await Review.findOne({
     pandit: panditId,
     user: userId,
+    bookingID: bookingId,
   });
 
   if (existingReview) {

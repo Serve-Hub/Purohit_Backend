@@ -2404,6 +2404,12 @@ paths:
           schema:
             type: string
           description: The ID of the Pandit to check for reviews.
+        - in: path
+          name: bookingId
+          required: true
+          schema:
+            type: string
+          description: The ID of the booking to check for reviews.
         - in: header
           name: Authorization
           required: true
