@@ -39,11 +39,11 @@ const createBooking = asyncHandler(async (req, res) => {
   const existingBooking = await Booking.findOne({
     pujaID: pujaId,
     userID: userID,
+    status: { $nin: ["Cancelled", "Completed"] },
   });
+  console.log(existingBooking);
   if (existingBooking) {
-    if (existingBooking.status != "Completed") {
-      throw new ApiError(400, "You have  already booked this puja.");
-    }
+    throw new ApiError(400, "You have  already booked this puja.");
   }
 
   const booking = new Booking({
