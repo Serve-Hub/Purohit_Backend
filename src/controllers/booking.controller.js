@@ -339,10 +339,13 @@ const choosePanditForPuja = asyncHandler(async (req, res) => {
 
   // ✅ **Check if the Pandit is already selected for another booking on the same date**
   const conflictingBooking = await Booking.findOne({
-    selectedPandit: panditId, // Pandit already selected
+    selectedPandit: { $in: [panditId] }, // Pandit already selected
     date: booking.date, // Same date
     _id: { $ne: bookingId }, // Exclude current booking
+    status: { $nin: ["Cancelled", "Completed"] }, // Exclude cancelled and completed bookings
   });
+
+  console.log(conflictingBooking);
 
   if (conflictingBooking) {
     throw new ApiError(
@@ -710,7 +713,7 @@ const checkPoojaBookingStatus = asyncHandler(async (req, res) => {
   const existingBooking = await Booking.findOne({
     pujaID: poojaId,
     userID: userId,
-    status: { $ne: "Cancelled", $ne: "Completed" },
+    status: { $nin: ["Cancelled", "Completed"] },
   });
 
   // Send the booking status
