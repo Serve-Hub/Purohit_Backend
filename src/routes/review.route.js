@@ -15,5 +15,5 @@ router.use(verifyJWT); // Apply verifyJWT middleware to all routes in this file
 router.post("/addReview", addReview);
 router.put("/getPanditReviews/:panditId", getPanditReviews);
 router.put("/getAverageRating/:panditId", getAverageRating);
-router.put("/checkReviewed/:panditId", checkReviewed);
+router.put("/checkReviewed/:panditId/:bookingId", checkReviewed);
 export default router;

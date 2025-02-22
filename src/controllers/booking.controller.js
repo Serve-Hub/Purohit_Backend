@@ -695,7 +695,7 @@ const checkPoojaBookingStatus = asyncHandler(async (req, res) => {
   const existingBooking = await Booking.findOne({
     pujaID: poojaId,
     userID: userId,
-    status: { $ne: "Cancelled" },
+    status: { $ne: "Cancelled", $ne: "Completed" },
   });
 
   // Send the booking status
