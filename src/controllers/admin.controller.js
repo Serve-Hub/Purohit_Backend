@@ -7,6 +7,8 @@ import mongoose from "mongoose";
 import cloudinary from "cloudinary";
 import { deleteFromCloudinary } from "../utils/cloudinary.js";
 import User from "../models/user.model.js";
+import Review from "../models/review.model.js";
+import Booking from "../models/booking.model.js";
 
 const addPuja = asyncHandler(async (req, res) => {
   const { pujaName, baseFare, category, duration, description } = req.body;
