@@ -337,6 +337,20 @@ const choosePanditForPuja = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Puja not found");
   }
 
+  // ✅ **Check if the Pandit is already selected for another booking on the same date**
+  const conflictingBooking = await Booking.findOne({
+    selectedPandit: panditId, // Pandit already selected
+    date: booking.date, // Same date
+    _id: { $ne: bookingId }, // Exclude current booking
+  });
+
+  if (conflictingBooking) {
+    throw new ApiError(
+      400,
+      "This Pandit is already selected for another booking on the same date."
+    );
+  }
+
   // Edge Case 4: Check if the pandit is in the acceptedPandit list
   if (
     !booking.acceptedPandit.some(
@@ -725,6 +739,7 @@ const pujaStatusUpdate = asyncHandler(async (req, res) => {
   //   throw new ApiError(400, "Booking not Accepted.");
   // }
   existingBooking.status = "Completed";
+  existingBooking.acceptedPandit = [];
   await existingBooking.save();
 
   return res
