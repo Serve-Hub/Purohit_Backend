@@ -238,6 +238,10 @@ const getAllPanditUsers = async (req, res) => {
   // Fetch users whose isPandit field is true
   const panditUsers = await User.find({ isPandit: true });
 
+  const Users = await User.find({ isPandit: false, isAdmin: false });
+
+  const UserCount = Users.length;
+
   // Count the number of pandit users
   const panditCount = panditUsers.length;
   // Return the list of pandit users
@@ -246,8 +250,8 @@ const getAllPanditUsers = async (req, res) => {
     .json(
       new ApiResponse(
         200,
-        { panditUsers, panditCount },
-        "Pandits Fetched successfully."
+        { panditUsers, panditCount, Users, UserCount },
+        "Pandits and Users Fetched successfully."
       )
     );
 };
