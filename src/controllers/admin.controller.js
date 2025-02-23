@@ -236,9 +236,13 @@ const searchPuja = asyncHandler(async (req, res) => {
 
 const getAllPanditUsers = async (req, res) => {
   // Fetch users whose isPandit field is true
-  const panditUsers = await User.find({ isPandit: true });
+  const panditUsers = await User.find({ isPandit: true }).select(
+    "-password -refreshToken"
+  );
 
-  const Users = await User.find({ isPandit: false, isAdmin: false });
+  const Users = await User.find({ isPandit: false, isAdmin: false }).select(
+    "-password -refreshToken"
+  );
 
   const UserCount = Users.length;
 
